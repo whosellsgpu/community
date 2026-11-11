@@ -1,0 +1,26 @@
+labels: ['market']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Share a price you've seen or paid, or a market observation. Link the source when you can; numbers without a source are treated as anecdotes.
+  - type: input
+    id: gpu
+    attributes:
+      label: GPU and configuration
+      placeholder: 'e.g. 8× H100 SXM, reserved 6 months'
+  - type: input
+    id: price
+    attributes:
+      label: Price (USD per GPU-hour), if any
+  - type: input
+    id: source
+    attributes:
+      label: Source link
+      placeholder: https://
+  - type: textarea
+    id: details
+    attributes:
+      label: What you're seeing
+    validations:
+      required: true

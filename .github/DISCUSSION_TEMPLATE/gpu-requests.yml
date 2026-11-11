@@ -1,0 +1,76 @@
+title: '[Request] 8× H100 · North America · 3 months'
+labels: ['gpu-request']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Tell providers what you need. Replies come from the community; deals happen directly between you and the provider. Don't post private contact details here; ask interested providers to reach out.
+  - type: dropdown
+    id: gpu
+    attributes:
+      label: GPU
+      options:
+        - H100
+        - H200
+        - B200
+        - B300
+        - GB200 / GB300
+        - A100
+        - L40S
+        - MI300X / MI325X / MI355X
+        - RTX 4090 / 5090
+        - Other or flexible
+    validations:
+      required: true
+  - type: input
+    id: count
+    attributes:
+      label: How many GPUs
+      placeholder: '8, or 64 (8 nodes × 8)'
+    validations:
+      required: true
+  - type: dropdown
+    id: region
+    attributes:
+      label: Region
+      options:
+        - North America
+        - Europe
+        - Asia Pacific
+        - Middle East
+        - Africa
+        - South America
+        - Anywhere
+    validations:
+      required: true
+  - type: dropdown
+    id: term
+    attributes:
+      label: Term
+      options:
+        - On demand (hours to days)
+        - 1 month
+        - 3 months
+        - 6–12 months
+        - More than a year
+    validations:
+      required: true
+  - type: input
+    id: budget
+    attributes:
+      label: Target price (USD per GPU-hour)
+      placeholder: 'e.g. 2.50, or "open"'
+  - type: dropdown
+    id: start
+    attributes:
+      label: When do you need it
+      options:
+        - Now
+        - Within a month
+        - Within a quarter
+        - Planning ahead
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: Workload (training, inference, fine-tuning), interconnect needs (NVLink, InfiniBand), storage, compliance.

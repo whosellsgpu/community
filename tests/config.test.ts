@@ -5,9 +5,9 @@ import { configIncomplete, forumConfig, themeCss } from '$lib/config';
 // defaults, repo fallback applied, theme compiled.
 describe('resolved config', () => {
 	it('merges the root forum.config.ts over defaults', () => {
-		expect(forumConfig.repo.owner).toBe('NotReeceHarris');
-		expect(forumConfig.repo.name).toBe('discussion-kit');
-		expect(forumConfig.site.name).toBe('Discussion Kit');
+		expect(forumConfig.repo.owner).toBe('whosellsgpu');
+		expect(forumConfig.repo.name).toBe('community');
+		expect(forumConfig.site.name).toBe('Who Sells GPU · Community');
 		// default that forum.config.ts does not override
 		expect(forumConfig.content.articles.marker).toBe('<!-- dk:article -->');
 	});
@@ -16,7 +16,14 @@ describe('resolved config', () => {
 		expect(configIncomplete).toBe(false);
 	});
 
-	it('compiles theme overrides (none in the shipped config)', () => {
-		expect(themeCss).toBe('');
+	it('reads anonymously from the archive, with token sign-in off', () => {
+		expect(forumConfig.archive.enabled).toBe(true);
+		expect(forumConfig.auth.allowToken).toBe(false);
+	});
+
+	it('compiles the Who Sells GPU theme for both schemes', () => {
+		expect(themeCss).toContain('--fd-background:#f3eee3');
+		expect(themeCss).toContain('--fd-background:#040804');
+		expect(themeCss).toContain('--fd-primary:#7fee64');
 	});
 });

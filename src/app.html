@@ -4,12 +4,24 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="text-scale" content="scale" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			rel="stylesheet"
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600&display=swap"
+		/>
 		<script>
-			// Apply the persisted theme before first paint to avoid a flash
+			// Apply the persisted theme before first paint to avoid a flash.
+			// whosellsgpu.com stores its choice as wsg-theme on the same origin,
+			// so the forum follows the main site; dark is the site default.
 			(() => {
-				const stored = localStorage.getItem('dk:theme');
-				const dark = stored ? stored === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+				let stored = null;
+				try {
+					stored = localStorage.getItem('wsg-theme') || localStorage.getItem('dk:theme');
+				} catch {}
+				const dark = stored ? stored === 'dark' : true;
 				if (dark) document.documentElement.classList.add('dark');
+				document.documentElement.dataset.theme = dark ? 'dark' : 'light';
 			})();
 		</script>
 		%sveltekit.head%

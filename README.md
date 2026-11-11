@@ -1,3 +1,17 @@
+# Who Sells GPU · Community
+
+The community forum for [whosellsgpu.com](https://whosellsgpu.com), served at **[whosellsgpu.com/forum](https://whosellsgpu.com/forum)**. It's where teams looking for GPUs meet the people who have them: post a **GPU request**, list **GPU supply**, or talk **pricing and market** news.
+
+- **Posts live in this repository's [Discussions](https://github.com/whosellsgpu/community/discussions).** Each category is a forum topic. GPU requests, GPU supply, and Pricing & market have structured forms in `.github/DISCUSSION_TEMPLATE/`.
+- **Anyone can read** without a GitHub account. The `data-sync` workflow snapshots the forum to the `data` branch, and signed-out visitors browse that snapshot.
+- **To post or reply, use GitHub** for now ("Post on GitHub"). "Continue with GitHub" sign-in on the site needs an OAuth app; see `docs/` and the main site's `/api/forum-oauth`.
+- **Hosting:** GitHub Pages builds with `BASE_PATH=/forum` (`.github/workflows/deploy.yml`), and whosellsgpu.com proxies `/forum/*` to it.
+- **Who Sells GPU doesn't verify listings or take part in deals.** Report spam with GitHub's "Report content".
+
+Built on [Discussion Kit](https://github.com/NotReeceHarris/discussion-kit) by Reece Harris, licensed under GPL-3.0 (see `LICENSE`). Our changes: branding and theme (`forum.config.ts`, `src/routes/layout.css`, `src/app.html`), a "Post on GitHub" button when sign-in is off (`src/lib/components/Header.svelte`), the theme shared with whosellsgpu.com (`src/lib/ui.svelte.ts`), the `/forum` base path, and the discussion forms.
+
+---
+
 # Discussion Kit
 
 ![Codecov](https://img.shields.io/codecov/c/github/NotReeceHarris/discussion-kit?style=flat)

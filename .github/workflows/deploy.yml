@@ -54,7 +54,8 @@ jobs:
 
       - name: Build
         env:
-          BASE_PATH: '/${{ github.event.repository.name }}'
+          # Served at https://whosellsgpu.com/forum (proxied by the main site).
+          BASE_PATH: '/forum'
         run: npm run build
 
       - name: Upload artifact

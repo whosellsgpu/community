@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
+	import { base, resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import { forumConfig } from '$lib/config';
 	import { auth } from '$lib/github/auth.svelte';
@@ -21,6 +21,12 @@
 		<a href={resolve('/')} class="flex items-center gap-2.5 font-semibold tracking-tight">
 			{#if forumConfig.site.logo}
 				<span class="text-lg leading-none">{forumConfig.site.logo}</span>
+			{:else if forumConfig.repo.owner === 'whosellsgpu'}
+				<span
+					class="grid size-8 place-items-center rounded-md border border-fd-border bg-[#08090b]"
+				>
+					<img src="{base}/mark.png" alt="" class="size-6" />
+				</span>
 			{:else}
 				<svg class="size-5" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
 					<path
@@ -113,6 +119,16 @@
 						</button>
 					</div>
 				</details>
+			{:else if !forumConfig.auth.allowToken && !forumConfig.auth.oauth.clientId}
+				<!-- Sign-in is off: posting and replying happen on GitHub. -->
+				<a
+					href="https://github.com/{forumConfig.repo.owner}/{forumConfig.repo.name}/discussions/new/choose"
+					target="_blank"
+					rel="noreferrer"
+					class="inline-flex items-center gap-2 rounded-lg bg-fd-primary px-3 py-1.5 text-sm font-medium text-fd-primary-foreground transition-opacity hover:opacity-90"
+				>
+					Post on GitHub
+				</a>
 			{:else}
 				<button
 					type="button"

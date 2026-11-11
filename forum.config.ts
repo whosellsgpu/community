@@ -1,67 +1,61 @@
 import { defineForumConfig } from './src/lib/config/schema';
 
 /**
- * ─────────────────────────────────────────────────────────────────────────────
- *  Discussion Kit configuration
- * ─────────────────────────────────────────────────────────────────────────────
- *  Every option is optional — anything you omit falls back to a sensible
- *  default (see src/lib/config/schema.ts for the full schema and defaults).
+ * Who Sells GPU community forum, built on Discussion Kit
+ * (https://github.com/NotReeceHarris/discussion-kit, GPL-3.0).
  *
- *  Quick start for your own forum:
- *    1. Enable Discussions on your repository and create some categories.
- *    2. Set `site` to your branding.
- *    3. Either set `repo.owner` / `repo.name`, or delete them — when built by
- *       the included GitHub Actions workflow they are auto-detected, so a fork
- *       can deploy without touching any code.
- *    4. Optionally list admin logins below.
+ * Served at https://whosellsgpu.com/forum: GitHub Pages hosts the build
+ * (BASE_PATH=/forum, see .github/workflows/deploy.yml) and the main site's
+ * Cloudflare Pages Function proxies /forum/* to it.
+ *
+ * Topics are this repository's Discussion categories. The marketplace ones
+ * (GPU requests, GPU supply, Pricing & market) have structured forms in
+ * .github/DISCUSSION_TEMPLATE/.
  */
 export default defineForumConfig({
 	site: {
-		name: 'Discussion Kit',
-		description: 'A community forum powered by GitHub Discussions',
-		// logo: '💬',                        // emoji shown instead of the default icon
-		footer: 'Powered by GitHub Discussions'
+		name: 'Who Sells GPU · Community',
+		description:
+			'Where teams looking for GPUs meet the people who have them. Post a request, list supply, or talk pricing.',
+		footer: 'Who Sells GPU community · Powered by GitHub Discussions'
 	},
 
 	repo: {
-		// Omit owner/name to auto-detect when building in GitHub Actions.
-		owner: 'NotReeceHarris',
-		name: 'discussion-kit'
+		owner: 'whosellsgpu',
+		name: 'community'
 	},
 
-	// Extra header links
+	// Links back to the main site.
 	nav: [
-		// { label: 'Docs', href: 'https://example.com/docs', external: true }
+		{ label: 'Prices', href: 'https://whosellsgpu.com/' },
+		{ label: 'GPUs', href: 'https://whosellsgpu.com/gpus' },
+		{ label: 'Providers', href: 'https://whosellsgpu.com/#directory' }
 	],
 
 	auth: {
-		allowToken: true,
-		oauth: {
-			// Fill both to enable the "Continue with GitHub" button (see README):
-			clientId: 'Ov23li1QctsLGHqbcIwq',
-			proxyUrl: 'https://discussion-kit-oauth.reeceharris.workers.dev'
-		}
+		// Pasting personal access tokens is off: it confuses buyers, and the
+		// token would live on the whosellsgpu.com origin.
+		allowToken: false,
+		// "Continue with GitHub" stays off until an OAuth app and the token
+		// exchange (whosellsgpu.com/api/forum-oauth) are configured.
+		oauth: { clientId: '', proxyUrl: '' }
 	},
 
 	admins: {
-		logins: ['NotReeceHarris'], // GitHub logins that get the admin badge
-		badgeLabel: 'Admin'  // label shown next to admin usernames
+		logins: ['rudrakshkarpe'],
+		badgeLabel: 'Who Sells GPU'
 	},
 
-	// Custom badges shown next to usernames: label → GitHub logins
-	badges: {
-		'Moderator': ['NotDevenBriers'],
-		// 'Contributor': ['someuser', 'anotheruser']
-	},
+	badges: {},
 
 	content: {
 		pageSize: 25,
-		sort: 'CREATED_AT',         // or 'UPDATED_AT'
+		sort: 'CREATED_AT',
 		articles: { enabled: true },
 		topics: {
-			include: [],              // only these category slugs (empty = all)
-			exclude: [],              // hide these category slugs
-			restricted: ['announcements'] // announcement-format slugs: only maintainers can post
+			include: [],
+			exclude: [],
+			restricted: ['announcements']
 		}
 	},
 
@@ -71,34 +65,42 @@ export default defineForumConfig({
 		upvotes: true
 	},
 
-	// Optional reputation system: users earn rep for activity, topics can
-	// require a minimum rep to post. The rep.yml workflow maintains the
-	// ledger (rep-data branch) and reactively moderates posts made directly
-	// on github.com. Uncomment to enable:
-	rep: {
-		enabled: true,
-		gains: { post: 5, comment: 2, answerAccepted: 15 },
-		dailyCaps: { post: 25, comment: 10 },      // rep per UTC day, 0 = uncapped
-		topics: { showcase: 50 },                  // slug → min rep to post
-		onViolation: 'move',                       // 'move' | 'lock' | 'delete'
-		fallbackTopic: 'general'                   // where moved posts land
-	},
+	// Signed-out visitors read a snapshot kept fresh by the data-sync
+	// workflow, so buyers don't need a GitHub account to browse.
+	archive: { enabled: true },
 
-	// Cold-store archive: the data-sync workflow snapshots the forum to the
-	// `data` branch, and signed-out visitors browse it read-only instead of
-	// hitting the (auth-only) GitHub API. Public repositories only.
-	archive: {
-		enabled: true
-	},
-
-	// Override any CSS token per scheme, e.g. a blue primary:
+	// Who Sells GPU palette: green-black dark mode, warm cream light mode,
+	// lime primary buttons with near-black text.
 	theme: {
 		light: {
-			// primary: 'hsl(221 83% 53%)',
-			// primaryForeground: 'hsl(0 0% 100%)'
+			background: '#f3eee3',
+			foreground: '#1e1b15',
+			muted: '#e7dfcf',
+			mutedForeground: '#5b5446',
+			card: '#faf7ef',
+			cardForeground: '#1e1b15',
+			border: '#e0d7c6',
+			primary: '#7fee64',
+			primaryForeground: '#040804',
+			accent: '#efe8da',
+			accentForeground: '#1e1b15',
+			ring: '#2d6b1f',
+			link: '#2d6b1f'
 		},
 		dark: {
-			// primary: 'hsl(217 91% 60%)'
+			background: '#040804',
+			foreground: '#f1f2f0',
+			muted: '#1a2018',
+			mutedForeground: '#a1a89c',
+			card: '#10120f',
+			cardForeground: '#f1f2f0',
+			border: '#20271d',
+			primary: '#7fee64',
+			primaryForeground: '#040804',
+			accent: '#141812',
+			accentForeground: '#f1f2f0',
+			ring: '#7fee64',
+			link: '#7fee64'
 		}
 	}
 });

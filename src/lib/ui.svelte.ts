@@ -154,4 +154,7 @@ export function postableCategories(): Category[] {
 export function toggleTheme() {
 	const dark = document.documentElement.classList.toggle('dark');
 	localStorage.setItem('dk:theme', dark ? 'dark' : 'light');
+	// Keep whosellsgpu.com in step (same origin, same choice).
+	localStorage.setItem('wsg-theme', dark ? 'dark' : 'light');
+	document.documentElement.dataset.theme = dark ? 'dark' : 'light';
 }

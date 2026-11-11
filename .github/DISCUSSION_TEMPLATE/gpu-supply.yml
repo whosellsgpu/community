@@ -1,0 +1,79 @@
+title: '[Supply] 32× H200 · Europe · available now'
+labels: ['gpu-supply']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        List capacity you can offer. Be specific and current; stale listings are closed. Who Sells GPU doesn't verify listings or take part in deals.
+  - type: input
+    id: company
+    attributes:
+      label: Provider or company
+      placeholder: Your cloud, data centre, or company name
+    validations:
+      required: true
+  - type: dropdown
+    id: gpu
+    attributes:
+      label: GPU
+      options:
+        - H100
+        - H200
+        - B200
+        - B300
+        - GB200 / GB300
+        - A100
+        - L40S
+        - MI300X / MI325X / MI355X
+        - RTX 4090 / 5090
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: form-factor
+    attributes:
+      label: Form factor
+      options:
+        - SXM / HGX
+        - PCIe
+        - NVL
+        - OAM (AMD)
+        - Other
+  - type: input
+    id: count
+    attributes:
+      label: GPUs available
+      placeholder: '32 (4 nodes × 8)'
+    validations:
+      required: true
+  - type: dropdown
+    id: region
+    attributes:
+      label: Region
+      options:
+        - North America
+        - Europe
+        - Asia Pacific
+        - Middle East
+        - Africa
+        - South America
+    validations:
+      required: true
+  - type: input
+    id: price
+    attributes:
+      label: Price (USD per GPU-hour)
+      placeholder: 'e.g. 2.10 on a 3-month term, or "on request"'
+  - type: dropdown
+    id: availability
+    attributes:
+      label: Available from
+      options:
+        - Now
+        - Within a month
+        - Within a quarter
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: Minimum term, interconnect (NVLink, InfiniBand), storage, networking, certifications, and how to contact you.
