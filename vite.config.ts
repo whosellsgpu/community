@@ -24,7 +24,11 @@ export default defineConfig({
 
 			paths: {
 				// Set BASE_PATH=/repo-name when deploying to <user>.github.io/<repo-name>
-				base: (process.env.BASE_PATH as `/${string}` | undefined) || ''
+				base: (process.env.BASE_PATH as `/${string}` | undefined) || '',
+				// Absolute asset URLs (/forum/_app/...): the forum is served through
+				// whosellsgpu.com's proxy, where relative URLs from /forum would
+				// resolve against the main site.
+				relative: false
 			}
 		})
 	]
