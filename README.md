@@ -8,6 +8,14 @@ The community forum for [whosellsgpu.com](https://whosellsgpu.com), served at **
 - **Hosting:** GitHub Pages builds with `BASE_PATH=/forum` (`.github/workflows/deploy.yml`), and whosellsgpu.com proxies `/forum/*` to it.
 - **Who Sells GPU doesn't verify listings or take part in deals.** Report spam with GitHub's "Report content".
 
+**Maintainer setup:** create these Discussion categories (Settings → Discussions → Categories). Their slugs must match the forms in `.github/DISCUSSION_TEMPLATE/`:
+
+| Category | Slug | Format |
+| --- | --- | --- |
+| GPU requests | `gpu-requests` | Open-ended discussion |
+| GPU supply | `gpu-supply` | Open-ended discussion |
+| Pricing & market | `pricing-market` | Open-ended discussion |
+
 Built on [Discussion Kit](https://github.com/NotReeceHarris/discussion-kit) by Reece Harris, licensed under GPL-3.0 (see `LICENSE`). Our changes: branding and theme (`forum.config.ts`, `src/routes/layout.css`, `src/app.html`), a "Post on GitHub" button when sign-in is off (`src/lib/components/Header.svelte`), the theme shared with whosellsgpu.com (`src/lib/ui.svelte.ts`), the `/forum` base path, and the discussion forms.
 
 ---
