@@ -82,8 +82,8 @@
 				</a>
 			{:else}
 			<p class="mb-4 text-sm text-fd-muted-foreground">
-				The forum runs entirely on the GitHub API, so a GitHub account is required to browse and
-				post.
+				Sign in with your GitHub account to post, comment, and react right here. Reading
+				doesn't need an account.
 			</p>
 			{/if}
 
