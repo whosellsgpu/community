@@ -36,9 +36,12 @@ export default defineForumConfig({
 		// Pasting personal access tokens is off: it confuses buyers, and the
 		// token would live on the whosellsgpu.com origin.
 		allowToken: false,
-		// "Continue with GitHub" stays off until an OAuth app and the token
-		// exchange (whosellsgpu.com/api/forum-oauth) are configured.
-		oauth: { clientId: '', proxyUrl: '' }
+		// "Continue with GitHub": a GitHub App (Discussions read & write only,
+		// installed on whosellsgpu/community only). Paste its public Client ID
+		// here; its secret lives only in whosellsgpu.com's Cloudflare settings,
+		// used by the token exchange at /api/forum-oauth. Empty = sign-in off,
+		// and posting links to github.com instead.
+		oauth: { clientId: '', proxyUrl: 'https://whosellsgpu.com/api/forum-oauth' }
 	},
 
 	admins: {
