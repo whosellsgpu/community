@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
-	import { forumConfig } from '$lib/config';
+	import { base, resolve } from '$app/paths';
+	import { forumConfig, githubUrlFor, signInEnabled } from '$lib/config';
 	import { auth } from '$lib/github/auth.svelte';
 	import { ui } from '$lib/ui.svelte';
 
@@ -52,7 +52,9 @@
 			aria-label="Sign in with GitHub"
 		>
 			<div class="mb-1 flex items-center justify-between">
-				<h2 class="text-lg font-semibold">Sign in with GitHub</h2>
+				<h2 class="text-lg font-semibold">
+					{signInEnabled ? 'Sign in with GitHub' : 'Post and reply on GitHub'}
+				</h2>
 				<button
 					type="button"
 					onclick={close}
@@ -64,12 +66,28 @@
 					>
 				</button>
 			</div>
+			{#if !signInEnabled}
+				<p class="mb-4 text-sm text-fd-muted-foreground">
+					Anyone can read the forum here. To post, reply, or react, open it on GitHub. You need a
+					free GitHub account; your post shows up here within a few minutes.
+				</p>
+				<a
+					href={githubUrlFor(location.pathname, base)}
+					target="_blank"
+					rel="noreferrer"
+					onclick={close}
+					class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-fd-primary px-4 py-2 text-sm font-medium text-fd-primary-foreground transition-opacity hover:opacity-90"
+				>
+					Open on GitHub
+				</a>
+			{:else}
 			<p class="mb-4 text-sm text-fd-muted-foreground">
 				The forum runs entirely on the GitHub API, so a GitHub account is required to browse and
 				post.
 			</p>
+			{/if}
 
-			{#if auth.oauthAvailable}
+			{#if signInEnabled && auth.oauthAvailable}
 				<button
 					type="button"
 					onclick={startOAuth}
@@ -82,7 +100,7 @@
 					</svg>
 					Continue with GitHub
 				</button>
-			{:else if !tokenSignIn}
+			{:else if signInEnabled && !tokenSignIn}
 				<p class="rounded-xl border border-red-500/30 bg-red-500/5 p-3 text-sm text-red-500">
 					No sign-in method is enabled — set <code>auth.allowToken</code> or configure OAuth in
 					<code>forum.config.ts</code>.

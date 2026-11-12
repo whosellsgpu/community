@@ -6,6 +6,7 @@
 	import SignInDialog from '$lib/components/SignInDialog.svelte';
 	import { auth } from '$lib/github/auth.svelte';
 	import { configIncomplete, forumConfig, themeCss } from '$lib/config';
+	import { signInEnabled } from '$lib/config';
 	import { archiveMode, loadOverview, loadRep, ui } from '$lib/ui.svelte';
 
 	let { children } = $props();
@@ -58,13 +59,17 @@
 	{#if archiveMode() && ui.bootedFromArchive}
 		<div class="border-b border-fd-border bg-fd-muted/50">
 			<div class="mx-auto flex max-w-[1400px] flex-wrap items-center justify-center gap-x-2 gap-y-1 px-4 py-2 text-center text-xs text-fd-muted-foreground">
-				<span>Read-only snapshot — sign in to post, comment, and react.</span>
+				<span>
+					{signInEnabled
+						? 'Read-only snapshot — sign in to post, comment, and react.'
+						: 'Read-only view — post, reply, and react on GitHub.'}
+				</span>
 				<button
 					type="button"
 					onclick={() => (ui.signInOpen = true)}
 					class="font-medium text-fd-link hover:underline"
 				>
-					Sign in
+					{signInEnabled ? 'Sign in' : 'Open on GitHub'}
 				</button>
 			</div>
 		</div>

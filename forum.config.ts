@@ -54,7 +54,7 @@ export default defineForumConfig({
 		articles: { enabled: true },
 		topics: {
 			include: [],
-			exclude: [],
+			exclude: ['polls', 'show-and-tell', 'ideas'],
 			restricted: ['announcements']
 		}
 	},

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { base, resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
-	import { forumConfig } from '$lib/config';
+	import { forumConfig, signInEnabled } from '$lib/config';
 	import { auth } from '$lib/github/auth.svelte';
 	import { archiveMode, ui } from '$lib/ui.svelte';
 	import ThemeToggle from './ThemeToggle.svelte';
@@ -119,7 +119,7 @@
 						</button>
 					</div>
 				</details>
-			{:else if !forumConfig.auth.allowToken && !forumConfig.auth.oauth.clientId}
+			{:else if !signInEnabled}
 				<!-- Sign-in is off: posting and replying happen on GitHub. -->
 				<a
 					href="https://github.com/{forumConfig.repo.owner}/{forumConfig.repo.name}/discussions/new/choose"
@@ -127,7 +127,8 @@
 					rel="noreferrer"
 					class="inline-flex items-center gap-2 rounded-lg bg-fd-primary px-3 py-1.5 text-sm font-medium text-fd-primary-foreground transition-opacity hover:opacity-90"
 				>
-					Post on GitHub
+					<span class="sm:hidden">Post</span>
+					<span class="hidden sm:inline">Post on GitHub</span>
 				</a>
 			{:else}
 				<button
