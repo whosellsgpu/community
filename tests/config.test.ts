@@ -27,8 +27,13 @@ describe('resolved config', () => {
 		expect(forumConfig.auth.allowToken).toBe(false);
 	});
 
-	it('sends actions to the matching GitHub page while sign-in is off', () => {
-		expect(signInEnabled).toBe(false);
+	it('turns on GitHub sign-in through the whosellsgpu.com token exchange', () => {
+		expect(signInEnabled).toBe(true);
+		expect(forumConfig.auth.oauth.clientId).toBe('Iv23liFDwOZqIEc6NAdc');
+		expect(forumConfig.auth.oauth.proxyUrl).toBe('https://whosellsgpu.com/api/forum-oauth');
+	});
+
+	it('maps forum pages to their GitHub counterparts', () => {
 		const repo = 'https://github.com/whosellsgpu/community/discussions';
 		expect(githubUrlFor('/forum/d/42', '/forum')).toBe(`${repo}/42`);
 		expect(githubUrlFor('/forum/t/gpu-requests', '/forum')).toBe(

@@ -41,7 +41,7 @@ export default defineForumConfig({
 		// here; its secret lives only in whosellsgpu.com's Cloudflare settings,
 		// used by the token exchange at /api/forum-oauth. Empty = sign-in off,
 		// and posting links to github.com instead.
-		oauth: { clientId: '', proxyUrl: 'https://whosellsgpu.com/api/forum-oauth' }
+		oauth: { clientId: 'Iv23liFDwOZqIEc6NAdc', proxyUrl: 'https://whosellsgpu.com/api/forum-oauth' }
 	},
 
 	admins: {
