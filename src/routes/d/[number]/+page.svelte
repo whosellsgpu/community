@@ -125,7 +125,7 @@
 		if (archiveMode()) {
 			discussion = await fetchArchivedDiscussion(number);
 			if (!discussion) {
-				error = 'This post is not in the read-only archive yet — sign in to view it live.';
+				error = "This post isn't available. It may have been removed, or it was posted in the last couple of minutes.";
 			}
 			loading = false;
 			return;

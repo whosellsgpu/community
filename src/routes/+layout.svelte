@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { base } from '$app/paths';
+	import { page } from '$app/state';
 	import './layout.css';
 	import Header from '$lib/components/Header.svelte';
 	import Sidebar from '$lib/components/Sidebar.svelte';
@@ -8,6 +9,7 @@
 	import { configIncomplete, forumConfig, themeCss } from '$lib/config';
 	import { signInEnabled } from '$lib/config';
 	import { archiveMode, loadOverview, loadRep, ui } from '$lib/ui.svelte';
+	import { previewRemainingMs, previewStartedAt } from '$lib/preview';
 
 	let { children } = $props();
 
@@ -27,6 +29,24 @@
 			loadOverview();
 		}
 	});
+
+	// Signed-out visitors read freely for archive.previewMinutes, then the page
+	// blurs behind a sign-in card. The header stays usable, and the OAuth
+	// callback page is never covered.
+	let previewOver = $state(false);
+	$effect(() => {
+		previewOver = false;
+		if (!signInEnabled || auth.loading || auth.signedIn || !archiveMode()) return;
+		const left = previewRemainingMs(forumConfig.archive.previewMinutes, previewStartedAt());
+		if (left === Infinity) return;
+		if (left === 0) {
+			previewOver = true;
+			return;
+		}
+		const timer = setTimeout(() => (previewOver = true), left);
+		return () => clearTimeout(timer);
+	});
+	const gated = $derived(previewOver && !page.url.pathname.includes('/auth/callback'));
 
 	// rep ledger is public raw content — load as soon as the app boots
 	$effect(() => {
@@ -78,7 +98,11 @@
 		</div>
 	{/if}
 
-	<div class="mx-auto flex w-full max-w-[1400px] gap-8 px-4">
+	<div
+		class="mx-auto flex w-full max-w-[1400px] gap-8 px-4 {gated ? 'pointer-events-none select-none blur-md' : ''}"
+		inert={gated}
+		aria-hidden={gated || undefined}
+	>
 		{#if auth.signedIn && ui.categories.length > 0}
 			<aside class="sticky top-14 hidden h-[calc(100vh-3.5rem)] w-56 shrink-0 overflow-y-auto py-6 md:block">
 				<Sidebar categories={ui.categories} />
@@ -89,8 +113,36 @@
 		</main>
 	</div>
 
+	{#if gated}
+		<div class="fixed inset-x-0 bottom-0 top-14 z-40 flex items-center justify-center bg-fd-background/40 p-4">
+			<div
+				class="w-full max-w-md rounded-2xl border border-fd-border bg-fd-card p-6 text-center shadow-2xl"
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="preview-gate-title"
+			>
+				<img src="{base}/mark.png" alt="" class="mx-auto mb-3 size-10 rounded-lg" />
+				<h2 id="preview-gate-title" class="text-lg font-semibold">Join the Who Sells GPU community</h2>
+				<p class="mt-2 text-sm text-fd-muted-foreground">
+					Sign in with GitHub to keep reading GPU requests, supply listings and pricing threads,
+					and to post your own. It's free and takes a few seconds.
+				</p>
+				<button
+					type="button"
+					onclick={() => (ui.signInOpen = true)}
+					class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-fd-primary px-4 py-2 text-sm font-medium text-fd-primary-foreground transition-opacity hover:opacity-90"
+				>
+					Sign in with GitHub
+				</button>
+			</div>
+		</div>
+	{/if}
+
 	{#if forumConfig.site.footer}
-		<footer class="border-t border-fd-border py-6 text-center text-sm text-fd-muted-foreground">
+		<footer
+			inert={gated}
+			class="border-t border-fd-border py-6 text-center text-sm text-fd-muted-foreground {gated ? 'select-none blur-md' : ''}"
+		>
 			{forumConfig.site.footer}
 		</footer>
 	{/if}

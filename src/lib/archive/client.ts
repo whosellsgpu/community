@@ -30,14 +30,42 @@ export interface ProfileRep {
 	breakdown: { post: number; comment: number; answerAccepted: number };
 }
 
-function rawUrl(path: string): string {
+/** How long a resolved snapshot commit is reused before asking again */
+const REF_TTL_MS = 60_000;
+let ref: { at: number; value: Promise<string> } | null = null;
+
+/**
+ * The data branch's latest commit. Raw files at a branch name sit behind a
+ * ~5 min CDN cache that ignores query strings, so the post index and a post's
+ * own file could come from different snapshots (a just-deleted post still
+ * listed, its file already gone). Raw files at a commit hash never change,
+ * so every read pins to one snapshot. Falls back to the branch name when the
+ * GitHub API is unavailable or rate-limited (60/h per anonymous IP).
+ */
+function snapshotRef(): Promise<string> {
+	const now = Date.now();
+	if (ref && now - ref.at < REF_TTL_MS) return ref.value;
 	const { owner, name } = forumConfig.repo;
-	return `https://raw.githubusercontent.com/${owner}/${name}/${forumConfig.archive.dataBranch}/${path}`;
+	const branch = forumConfig.archive.dataBranch;
+	const value = fetch(`https://api.github.com/repos/${owner}/${name}/git/ref/heads/${branch}`)
+		.then(async (res) => {
+			if (!res.ok) return branch;
+			const sha = ((await res.json()) as { object?: { sha?: unknown } }).object?.sha;
+			return typeof sha === 'string' && /^[0-9a-f]{40}$/.test(sha) ? sha : branch;
+		})
+		.catch(() => branch);
+	ref = { at: now, value };
+	return value;
+}
+
+async function rawUrl(path: string): Promise<string> {
+	const { owner, name } = forumConfig.repo;
+	return `https://raw.githubusercontent.com/${owner}/${name}/${await snapshotRef()}/${path}`;
 }
 
 async function fetchJson<T>(path: string): Promise<T | null> {
 	try {
-		const res = await fetch(rawUrl(path), { cache: 'no-cache' });
+		const res = await fetch(await rawUrl(path), { cache: 'no-cache' });
 		if (!res.ok) return null;
 		return (await res.json()) as T;
 	} catch {

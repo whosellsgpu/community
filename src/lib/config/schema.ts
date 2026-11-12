@@ -160,6 +160,12 @@ export interface ForumConfig {
 		enabled: boolean;
 		/** Branch holding the archived `posts/` and `meta.json` (orphan, machine-written) */
 		dataBranch: string;
+		/**
+		 * Minutes a signed-out visitor can read before the page blurs behind a
+		 * sign-in card (0 = never). Counted from their first visit, per browser.
+		 * Only applies when sign-in is enabled.
+		 */
+		previewMinutes: number;
 	};
 	cache: {
 		/**
@@ -239,7 +245,8 @@ export const defaultConfig: ForumConfig = {
 	},
 	archive: {
 		enabled: false,
-		dataBranch: 'data'
+		dataBranch: 'data',
+		previewMinutes: 0
 	},
 	cache: {
 		enabled: true,

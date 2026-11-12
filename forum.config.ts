@@ -70,7 +70,8 @@ export default defineForumConfig({
 
 	// Signed-out visitors read a snapshot kept fresh by the data-sync
 	// workflow, so buyers don't need a GitHub account to browse.
-	archive: { enabled: true },
+	// signed-out visitors read freely for 2 minutes, then are asked to sign in
+	archive: { enabled: true, previewMinutes: 2 },
 
 	// Who Sells GPU palette: green-black dark mode, warm cream light mode,
 	// lime primary buttons with near-black text.

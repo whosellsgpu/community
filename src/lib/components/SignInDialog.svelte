@@ -82,8 +82,8 @@
 				</a>
 			{:else}
 			<p class="mb-4 text-sm text-fd-muted-foreground">
-				Sign in with your GitHub account to post, comment, and react right here. Reading
-				doesn't need an account.
+				Sign in with your GitHub account to keep reading, and to post, comment, and react
+				right here. We only get access to forum discussions.
 			</p>
 			{/if}
 
