@@ -1,6 +1,6 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import './layout.css';
-	import favicon from '$lib/assets/favicon.svg';
 	import Header from '$lib/components/Header.svelte';
 	import Sidebar from '$lib/components/Sidebar.svelte';
 	import SignInDialog from '$lib/components/SignInDialog.svelte';
@@ -35,7 +35,10 @@
 </script>
 
 <svelte:head>
-	<link rel="icon" href={favicon} />
+	<!-- Who Sells GPU favicons, the same as whosellsgpu.com -->
+	<link rel="icon" type="image/png" sizes="32x32" href="{base}/favicon-32.png" />
+	<link rel="icon" type="image/png" sizes="64x64" href="{base}/favicon-64.png" />
+	<link rel="apple-touch-icon" href="{base}/favicon-180.png" />
 	<title>{forumConfig.site.name}</title>
 	{#if themeCss}
 		{@html `<style>${themeCss}</style>`}
