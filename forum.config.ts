@@ -26,11 +26,29 @@ export default defineForumConfig({
 	},
 
 	// Links back to the main site.
-	nav: [
-		{ label: 'Prices', href: 'https://whosellsgpu.com/' },
-		{ label: 'GPUs', href: 'https://whosellsgpu.com/gpus' },
-		{ label: 'Providers', href: 'https://whosellsgpu.com/#directory' }
-	],
+	// The forum lives at whosellsgpu.com/forum, so it wears the site's own
+	// header: same brand, navigation, actions and account menu as every other
+	// page (keep in step with SiteHeader in whosellsgpu.com's SiteChrome.tsx).
+	nav: [],
+	host: {
+		enabled: true,
+		name: 'Who Sells GPU',
+		tagline: 'ON-DEMAND GPU PRICES',
+		homeUrl: '/',
+		nav: [
+			{ label: 'Prices', href: '/#compare', keepOnMobile: true },
+			{ label: 'GPUs', href: '/gpus', keepOnMobile: true },
+			{ label: 'Providers', href: '/#directory' },
+			{ label: 'Buyers', href: '/buyers' },
+			{ label: 'Forum', href: '/forum/', current: true, keepOnMobile: true }
+		],
+		communityUrl:
+			'https://join.slack.com/t/whosellsgpu/shared_invite/zt-4fukajr7r-~2GylbGumYFr~dYz6jk~qA',
+		communityLabel: 'Join our Slack',
+		bookingUrl: 'https://calendly.com/founders-whosellsgpu/30min',
+		bookingLabel: 'Schedule a call',
+		membersExportUrl: '/api/admin/members'
+	},
 
 	auth: {
 		// Pasting personal access tokens is off: it confuses buyers, and the

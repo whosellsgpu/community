@@ -30,6 +30,39 @@ export interface NavLink {
 	external?: boolean;
 }
 
+export interface HostNavLink {
+	label: string;
+	href: string;
+	/** Marks the forum's own entry as the current section */
+	current?: boolean;
+	/** Stays visible on phones (others collapse below 480px) */
+	keepOnMobile?: boolean;
+}
+
+/**
+ * Optional: render the host site's header (brand, navigation, actions and
+ * account menu) instead of the forum's own, so a forum embedded in a larger
+ * site (served under its domain, e.g. /forum) reads as one product. Forum
+ * search and "New post" move to a toolbar under it.
+ */
+export interface HostConfig {
+	enabled: boolean;
+	/** Brand name and the small mono tagline under it */
+	name: string;
+	tagline: string;
+	/** Where the brand links to */
+	homeUrl: string;
+	nav: HostNavLink[];
+	/** Secondary header action, e.g. a community chat invite (empty = hidden) */
+	communityUrl: string;
+	communityLabel: string;
+	/** Primary header action, e.g. a booking page (empty = hidden) */
+	bookingUrl: string;
+	bookingLabel: string;
+	/** Members CSV download shown to forum admins in the account menu (empty = hidden) */
+	membersExportUrl: string;
+}
+
 export interface ForumConfig {
 	site: {
 		/** Forum name, shown in the header and page titles */
@@ -52,6 +85,7 @@ export interface ForumConfig {
 	};
 	/** Extra links shown in the header next to the logo */
 	nav: NavLink[];
+	host: HostConfig;
 	auth: {
 		/** Allow sign-in by pasting a fine-grained personal access token */
 		allowToken: boolean;
@@ -191,7 +225,9 @@ export interface ForumConfig {
 
 /** Everything optional, one level deep per section */
 export type UserForumConfig = {
-	[K in keyof ForumConfig]?: ForumConfig[K] extends object ? DeepPartial<ForumConfig[K]> : ForumConfig[K];
+	[K in keyof ForumConfig]?: ForumConfig[K] extends object
+		? DeepPartial<ForumConfig[K]>
+		: ForumConfig[K];
 };
 
 type DeepPartial<T> = {
@@ -215,6 +251,18 @@ export const defaultConfig: ForumConfig = {
 		name: ''
 	},
 	nav: [],
+	host: {
+		enabled: false,
+		name: '',
+		tagline: '',
+		homeUrl: '/',
+		nav: [],
+		communityUrl: '',
+		communityLabel: '',
+		bookingUrl: '',
+		bookingLabel: '',
+		membersExportUrl: ''
+	},
 	auth: {
 		allowToken: true,
 		oauth: { clientId: '', proxyUrl: '' },
