@@ -14,6 +14,7 @@ import { forumConfig } from '$lib/config';
 
 const SYNC_KEY = 'dk:site-session';
 const RETURN_KEY = 'dk:return';
+const SOURCE_KEY = 'dk:return-source';
 
 export type SignInSource = 'site' | 'forum';
 
@@ -93,21 +94,26 @@ export function safeReturnPath(raw: string | null | undefined): string | null {
 	}
 }
 
-/** Remember where to send the visitor once sign-in completes. */
-export function rememberReturn(path: string): void {
+/**
+ * Remember where to send the visitor once sign-in completes, and where the
+ * sign-in started: on the host site, or in the forum's own header.
+ */
+export function rememberReturn(path: string, source: SignInSource = 'site'): void {
 	try {
 		sessionStorage.setItem(RETURN_KEY, path);
+		sessionStorage.setItem(SOURCE_KEY, source);
 	} catch {
 		// storage unavailable: they land on the forum home instead
 	}
 }
 
-/** Whether a sign-in started from the host site is in progress. */
-export function hasPendingReturn(): boolean {
+/** Where a sign-in in progress started, or null when none is pending. */
+export function pendingSignInSource(): SignInSource | null {
 	try {
-		return sessionStorage.getItem(RETURN_KEY) !== null;
+		if (sessionStorage.getItem(RETURN_KEY) === null) return null;
+		return sessionStorage.getItem(SOURCE_KEY) === 'forum' ? 'forum' : 'site';
 	} catch {
-		return false;
+		return null;
 	}
 }
 
@@ -116,6 +122,7 @@ export function takeReturn(): string | null {
 	try {
 		const raw = sessionStorage.getItem(RETURN_KEY);
 		sessionStorage.removeItem(RETURN_KEY);
+		sessionStorage.removeItem(SOURCE_KEY);
 		return safeReturnPath(raw);
 	} catch {
 		return null;

@@ -2,7 +2,7 @@ import { clearCache, setCacheScope } from '$lib/cache';
 import { forumConfig } from '$lib/config';
 import {
 	endSiteSession,
-	hasPendingReturn,
+	pendingSignInSource,
 	siteSessionSynced,
 	syncSiteSession,
 	type SignInSource
@@ -78,7 +78,7 @@ class Auth {
 		if (!data.access_token) throw new Error('Token exchange returned no token.');
 		await this.signInWithToken(data.access_token);
 		// sign the visitor in on the host site before any redirect back to it
-		await syncSiteSession(data.access_token, hasPendingReturn() ? 'site' : 'forum');
+		await syncSiteSession(data.access_token, pendingSignInSource() ?? 'forum');
 	}
 
 	/** Share the current sign-in with the host site (e.g. its session expired). */

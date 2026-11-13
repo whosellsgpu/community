@@ -10,7 +10,7 @@ const { mockConfig, setCacheScope, clearCache } = vi.hoisted(() => ({
 }));
 const site = vi.hoisted(() => ({
 	synced: false,
-	pendingReturn: false,
+	pendingSource: null as 'site' | 'forum' | null,
 	syncSiteSession: vi.fn(async () => true),
 	endSiteSession: vi.fn()
 }));
@@ -19,7 +19,7 @@ vi.mock('$lib/config', () => ({ forumConfig: mockConfig }));
 vi.mock('$lib/cache', () => ({ setCacheScope, clearCache }));
 vi.mock('$lib/github/site-session', () => ({
 	siteSessionSynced: () => site.synced,
-	hasPendingReturn: () => site.pendingReturn,
+	pendingSignInSource: () => site.pendingSource,
 	syncSiteSession: site.syncSiteSession,
 	endSiteSession: site.endSiteSession
 }));
@@ -42,7 +42,7 @@ beforeEach(async () => {
 	setCacheScope.mockClear();
 	clearCache.mockClear();
 	site.synced = false;
-	site.pendingReturn = false;
+	site.pendingSource = null;
 	site.syncSiteSession.mockClear();
 	site.endSiteSession.mockClear();
 	fetchMock = vi.fn();
@@ -162,7 +162,7 @@ describe('oauth', () => {
 	it('completeOAuth marks sign-ins started on the host site', async () => {
 		mockConfig.auth.oauth = { clientId: 'cid', proxyUrl: 'http://proxy' };
 		sessionStorage.setItem('dk:oauth-state', 'S');
-		site.pendingReturn = true;
+		site.pendingSource = 'site';
 		fetchMock
 			.mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ access_token: 'oat' }) })
 			.mockResolvedValueOnce(viewerOk);

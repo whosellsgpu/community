@@ -139,13 +139,16 @@ describe('safeReturnPath', () => {
 });
 
 describe('return path', () => {
-	it('is remembered, validated again and consumed once', () => {
-		expect(s.hasPendingReturn()).toBe(false);
+	it('is remembered with its source, validated again and consumed once', () => {
+		expect(s.pendingSignInSource()).toBeNull();
 		s.rememberReturn('/gpus');
-		expect(s.hasPendingReturn()).toBe(true);
+		expect(s.pendingSignInSource()).toBe('site');
 		expect(s.takeReturn()).toBe('/gpus');
-		expect(s.hasPendingReturn()).toBe(false);
+		expect(s.pendingSignInSource()).toBeNull();
 		expect(s.takeReturn()).toBeNull();
+		s.rememberReturn('/forum/d/3', 'forum');
+		expect(s.pendingSignInSource()).toBe('forum');
+		expect(s.takeReturn()).toBe('/forum/d/3');
 		// a value planted in storage is still checked
 		sessionStorage.setItem('dk:return', '//evil.example');
 		expect(s.takeReturn()).toBeNull();
@@ -154,7 +157,7 @@ describe('return path', () => {
 	it('is skipped when storage is blocked', () => {
 		blockStorage();
 		expect(() => s.rememberReturn('/gpus')).not.toThrow();
-		expect(s.hasPendingReturn()).toBe(false);
+		expect(s.pendingSignInSource()).toBeNull();
 		expect(s.takeReturn()).toBeNull();
 	});
 });
