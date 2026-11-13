@@ -50,8 +50,9 @@ export interface HostConfig {
 	/** Brand name and the small mono tagline under it */
 	name: string;
 	tagline: string;
-	/** Where the brand links to */
+	/** Where the brand links to, and the brand mark image (empty = forum mark) */
 	homeUrl: string;
+	logoUrl: string;
 	nav: HostNavLink[];
 	/** Secondary header action, e.g. a community chat invite (empty = hidden) */
 	communityUrl: string;
@@ -256,6 +257,7 @@ export const defaultConfig: ForumConfig = {
 		name: '',
 		tagline: '',
 		homeUrl: '/',
+		logoUrl: '',
 		nav: [],
 		communityUrl: '',
 		communityLabel: '',
