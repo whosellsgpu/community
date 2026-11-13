@@ -83,7 +83,9 @@
 			{:else}
 			<p class="mb-4 text-sm text-fd-muted-foreground">
 				Sign in with your GitHub account to keep reading, and to post, comment, and react
-				right here. We only get access to forum discussions.
+				right here. You'll be signed in on whosellsgpu.com too. We save your public GitHub
+				profile so we can connect GPU buyers and suppliers, and only get access to forum
+				discussions.
 			</p>
 			{/if}
 
