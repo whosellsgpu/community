@@ -64,6 +64,12 @@ export interface ForumConfig {
 			clientId: string;
 			proxyUrl: string;
 		};
+		/**
+		 * Optional host-site session endpoint (see $lib/github/site-session).
+		 * After sign-in the forum POSTs { token, source } here so the host site
+		 * shows the member signed in too; sign-out sends DELETE. Empty = off.
+		 */
+		siteSessionUrl: string;
 	};
 	admins: {
 		/** GitHub logins of forum admins — they get a badge next to their name */
@@ -211,7 +217,8 @@ export const defaultConfig: ForumConfig = {
 	nav: [],
 	auth: {
 		allowToken: true,
-		oauth: { clientId: '', proxyUrl: '' }
+		oauth: { clientId: '', proxyUrl: '' },
+		siteSessionUrl: ''
 	},
 	admins: {
 		logins: [],
