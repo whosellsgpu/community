@@ -22,11 +22,9 @@
 			{#if forumConfig.site.logo}
 				<span class="text-lg leading-none">{forumConfig.site.logo}</span>
 			{:else if forumConfig.repo.owner === 'whosellsgpu'}
-				<span
-					class="grid size-8 place-items-center rounded-md border border-fd-border bg-[#08090b]"
-				>
-					<img src="{base}/mark.png" alt="" class="size-6" />
-				</span>
+				<!-- Who Sells GPU community lockup; it carries the name, so the text is for screen readers -->
+				<img src="{base}/logos/community.svg" alt="" class="hidden h-9 w-auto dark:block" />
+				<img src="{base}/logos/community-light.svg" alt="" class="block h-9 w-auto dark:hidden" />
 			{:else}
 				<svg class="size-5" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
 					<path
@@ -34,7 +32,9 @@
 					/>
 				</svg>
 			{/if}
-			{forumConfig.site.name}
+			<span class={forumConfig.repo.owner === 'whosellsgpu' ? 'sr-only' : undefined}>
+				{forumConfig.site.name}
+			</span>
 		</a>
 
 		{#if forumConfig.nav.length > 0}
