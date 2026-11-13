@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { base } from '$app/paths';
+	import { goto } from '$app/navigation';
+	import { base, resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import './layout.css';
 	import Header from '$lib/components/Header.svelte';
@@ -10,6 +11,7 @@
 	import { signInEnabled } from '$lib/config';
 	import { archiveMode, loadOverview, loadRep, ui } from '$lib/ui.svelte';
 	import { previewRemainingMs, previewStartedAt } from '$lib/preview';
+	import { rememberReturn, safeReturnPath } from '$lib/github/site-session';
 	import { initConversationHistory } from '$lib/conversation-history.svelte';
 	import { untrack } from 'svelte';
 
@@ -36,6 +38,28 @@
 		} else if (!auth.loading && archiveMode() && !ui.categoriesLoaded) {
 			loadOverview();
 		}
+	});
+
+	// The host site's "Sign in" button links to ?signin=1&return=<path>: run
+	// the GitHub sign-in, then the callback sends the visitor back to <path>.
+	// Already signed in here? Share the sign-in with the site and go straight back.
+	let signInRequestHandled = false;
+	$effect(() => {
+		if (signInRequestHandled || auth.loading) return;
+		const params = page.url.searchParams;
+		if (params.get('signin') !== '1') return;
+		signInRequestHandled = true;
+		const back = safeReturnPath(params.get('return'));
+		if (auth.signedIn) {
+			void auth.shareWithSite('site').then(() => {
+				if (back) location.replace(back);
+				else goto(resolve('/'), { replaceState: true });
+			});
+			return;
+		}
+		if (back) rememberReturn(back);
+		if (auth.oauthAvailable) auth.beginOAuth(`${location.origin}${resolve('/auth/callback')}`);
+		else ui.signInOpen = true;
 	});
 
 	// Signed-out visitors read freely for archive.previewMinutes, then the page
