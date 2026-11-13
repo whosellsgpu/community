@@ -64,6 +64,7 @@
 
 <svelte:head>
 	<!-- Who Sells GPU favicons, the same as whosellsgpu.com -->
+	<link rel="icon" type="image/svg+xml" href="{base}/logos/mark-tile.svg" />
 	<link rel="icon" type="image/png" sizes="32x32" href="{base}/favicon-32.png" />
 	<link rel="icon" type="image/png" sizes="64x64" href="{base}/favicon-64.png" />
 	<link rel="apple-touch-icon" href="{base}/favicon-180.png" />
@@ -129,7 +130,7 @@
 				aria-modal="true"
 				aria-labelledby="preview-gate-title"
 			>
-				<img src="{base}/mark.png" alt="" class="mx-auto mb-3 size-10 rounded-lg" />
+				<img src="{base}/logos/mark-tile.svg" alt="" class="mx-auto mb-3 size-12" />
 				<h2 id="preview-gate-title" class="text-lg font-semibold">Join the Who Sells GPU community</h2>
 				<p class="mt-2 text-sm text-fd-muted-foreground">
 					Sign in with GitHub to keep reading GPU requests, supply listings and pricing threads,

@@ -1,5 +1,8 @@
 <p align="center">
-  <img src=".github/assets/logo.png" alt="Who Sells GPU" width="96" height="96" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="static/logos/community.svg" />
+    <img src="static/logos/community-light.svg" alt="Who Sells GPU Community" width="420" />
+  </picture>
 </p>
 
 <h1 align="center">Who Sells GPU Community</h1>
