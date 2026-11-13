@@ -41,6 +41,21 @@ describe('syncSiteSession', () => {
 		expect(s.siteSessionSynced()).toBe(true);
 	});
 
+	it('shares one request between calls made while it is in flight', async () => {
+		let finish: (value: unknown) => void = () => undefined;
+		fetchMock.mockReturnValue(new Promise((resolve) => (finish = resolve)));
+		const first = s.syncSiteSession('tok', 'forum');
+		const second = s.syncSiteSession('tok', 'site');
+		finish({ ok: true });
+		expect(await first).toBe(true);
+		expect(await second).toBe(true);
+		expect(fetchMock).toHaveBeenCalledTimes(1);
+		// a later call sends again
+		fetchMock.mockResolvedValue({ ok: true });
+		await s.syncSiteSession('tok', 'site');
+		expect(fetchMock).toHaveBeenCalledTimes(2);
+	});
+
 	it('reports failure without throwing when the site refuses or is down', async () => {
 		fetchMock.mockResolvedValueOnce({ ok: false, status: 503 });
 		expect(await s.syncSiteSession('tok', 'forum')).toBe(false);

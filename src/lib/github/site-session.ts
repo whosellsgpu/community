@@ -30,10 +30,23 @@ export function siteSessionSynced(): boolean {
 	}
 }
 
-/** Tell the host site who signed in. Never throws: sign-in here still works. */
-export async function syncSiteSession(token: string, source: SignInSource): Promise<boolean> {
+let inFlight: Promise<boolean> | null = null;
+
+/**
+ * Tell the host site who signed in. Never throws: sign-in here still works.
+ * Calls made while one is in flight share it, so a restored sign-in and an
+ * explicit request never send the token twice.
+ */
+export function syncSiteSession(token: string, source: SignInSource): Promise<boolean> {
+	if (!sessionUrl()) return Promise.resolve(false);
+	inFlight ??= postSession(token, source).finally(() => {
+		inFlight = null;
+	});
+	return inFlight;
+}
+
+async function postSession(token: string, source: SignInSource): Promise<boolean> {
 	const url = sessionUrl();
-	if (!url) return false;
 	try {
 		const res = await fetch(url, {
 			method: 'POST',
