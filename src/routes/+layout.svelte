@@ -3,7 +3,9 @@
 	import { base, resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import './layout.css';
+	import ForumBar from '$lib/components/ForumBar.svelte';
 	import Header from '$lib/components/Header.svelte';
+	import HostHeader from '$lib/components/HostHeader.svelte';
 	import Sidebar from '$lib/components/Sidebar.svelte';
 	import SignInDialog from '$lib/components/SignInDialog.svelte';
 	import { auth } from '$lib/github/auth.svelte';
@@ -16,6 +18,10 @@
 	import { untrack } from 'svelte';
 
 	let { children } = $props();
+
+	// Embedded in a host site: wear its header, and line content up with it.
+	const hosted = forumConfig.host.enabled;
+	const width = hosted ? 'host-width' : 'mx-auto max-w-[1400px] px-4';
 
 	$effect(() => {
 		if (auth.loading) return;
@@ -108,12 +114,17 @@
 		</p>
 	</main>
 {:else}
-	<Header />
+	{#if hosted}
+		<HostHeader />
+		<ForumBar />
+	{:else}
+		<Header />
+	{/if}
 	<SignInDialog />
 
 	{#if archiveMode() && ui.bootedFromArchive}
 		<div class="border-b border-fd-border bg-fd-muted/50">
-			<div class="mx-auto flex max-w-[1400px] flex-wrap items-center justify-center gap-x-2 gap-y-1 px-4 py-2 text-center text-xs text-fd-muted-foreground">
+			<div class="{width} flex flex-wrap items-center justify-center gap-x-2 gap-y-1 py-2 text-center text-xs text-fd-muted-foreground">
 				<span>
 					{signInEnabled
 						? 'Read-only snapshot — sign in to post, comment, and react.'
@@ -131,12 +142,15 @@
 	{/if}
 
 	<div
-		class="mx-auto flex w-full max-w-[1400px] gap-8 px-4 {gated ? 'pointer-events-none select-none blur-md' : ''}"
+		class="{width} flex w-full gap-8 {gated ? 'pointer-events-none select-none blur-md' : ''}"
 		inert={gated}
 		aria-hidden={gated || undefined}
 	>
 		{#if auth.signedIn && ui.categories.length > 0}
-			<aside class="sticky top-14 hidden h-[calc(100vh-3.5rem)] w-56 shrink-0 overflow-y-auto py-6 md:block">
+			<aside
+				class="sticky hidden w-56 shrink-0 overflow-y-auto py-6 md:block"
+				style="top: var(--forum-header-h, 3.5rem); height: calc(100vh - var(--forum-header-h, 3.5rem))"
+			>
 				<Sidebar categories={ui.categories} />
 			</aside>
 		{/if}
@@ -146,7 +160,10 @@
 	</div>
 
 	{#if gated}
-		<div class="fixed inset-x-0 bottom-0 top-14 z-40 flex items-center justify-center bg-fd-background/40 p-4">
+		<div
+			class="fixed inset-x-0 bottom-0 z-20 flex items-center justify-center bg-fd-background/40 p-4"
+			style="top: var(--forum-header-h, 3.5rem)"
+		>
 			<div
 				class="w-full max-w-md rounded-2xl border border-fd-border bg-fd-card p-6 text-center shadow-2xl"
 				role="dialog"
