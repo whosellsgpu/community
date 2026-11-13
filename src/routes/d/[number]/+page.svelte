@@ -24,6 +24,8 @@
 	import { fetchArchivedDiscussion } from '$lib/archive/client';
 	import { archiveMode, isMaintainer, ui } from '$lib/ui.svelte';
 	import { formatDate, timeAgo } from '$lib/utils';
+	import { markConversationRead } from '$lib/conversation-history.svelte';
+	import { untrack } from 'svelte';
 
 	let discussion = $state<Discussion | null>(null);
 	let loading = $state(true);
@@ -128,11 +130,13 @@
 				error = "This post isn't available. It may have been removed, or it was posted in the last couple of minutes.";
 			}
 			loading = false;
+			if (discussion) markConversationRead(discussion);
 			return;
 		}
 		try {
 			await swr(`discussion:${number}`, () => getDiscussion(number), (fresh) => {
 				discussion = fresh;
+				untrack(() => markConversationRead(fresh));
 				loading = false;
 			});
 		} catch (err) {

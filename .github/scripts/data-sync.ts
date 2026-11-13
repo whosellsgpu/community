@@ -89,6 +89,7 @@ interface ScanDiscussion {
 	url: string;
 	createdAt: string;
 	lastEditedAt: string | null;
+	updatedAt: string;
 	upvoteCount: number;
 	locked: boolean;
 	author: Actor | null;
@@ -144,7 +145,7 @@ async function scan(): Promise<{
 					discussions(first: 25, after: $after) {
 						pageInfo { hasNextPage endCursor }
 						nodes {
-							id number title body bodyHTML url createdAt lastEditedAt
+							id number title body bodyHTML url createdAt updatedAt lastEditedAt
 							upvoteCount locked ${ACTOR}
 							category { id name slug emojiHTML description isAnswerable }
 							answerChosenAt answer { author { login avatarUrl url } }
@@ -219,10 +220,12 @@ function toListItem(d: ScanDiscussion) {
 		number: d.number,
 		title: d.title,
 		body: d.body,
+		answerChosenAt: d.answerChosenAt,
 		createdAt: d.createdAt,
+		updatedAt: d.updatedAt,
 		upvoteCount: d.upvoteCount,
 		author: d.author,
-		category: { id: d.category.id, name: d.category.name, slug: d.category.slug, emojiHTML: d.category.emojiHTML },
+		category: { id: d.category.id, name: d.category.name, slug: d.category.slug, emojiHTML: d.category.emojiHTML, isAnswerable: d.category.isAnswerable },
 		comments: { totalCount: d.comments.totalCount }
 	};
 }
@@ -236,6 +239,7 @@ function toArchivedDiscussion(d: ScanDiscussion) {
 		bodyHTML: d.bodyHTML,
 		url: d.url,
 		createdAt: d.createdAt,
+		updatedAt: d.updatedAt,
 		lastEditedAt: d.lastEditedAt,
 		upvoteCount: d.upvoteCount,
 		viewerHasUpvoted: false,

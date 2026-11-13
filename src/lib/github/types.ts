@@ -37,8 +37,12 @@ export interface DiscussionListItem {
 	body?: string;
 	createdAt: string;
 	upvoteCount: number;
+	/** Optional for compatibility with older archive snapshots. */
+	updatedAt?: string;
+	answerChosenAt?: string | null;
+	viewerSubscription?: 'SUBSCRIBED' | 'UNSUBSCRIBED' | 'IGNORED' | null;
 	author: Actor | null;
-	category: Pick<Category, 'id' | 'name' | 'slug' | 'emojiHTML'>;
+	category: Pick<Category, 'id' | 'name' | 'slug' | 'emojiHTML'> & { isAnswerable?: boolean };
 	comments: { totalCount: number };
 	/** Present only while filtering API results to the forum repo */
 	repository?: { nameWithOwner: string };
@@ -77,6 +81,7 @@ export interface Discussion {
 	/** Canonical github.com URL (used for the report-content link) */
 	url: string;
 	createdAt: string;
+	updatedAt?: string;
 	lastEditedAt: string | null;
 	upvoteCount: number;
 	viewerHasUpvoted: boolean;

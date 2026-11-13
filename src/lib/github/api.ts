@@ -69,9 +69,10 @@ const REACTIONS = `reactionGroups { content viewerHasReacted reactors { totalCou
 // the (potentially very large) field entirely when neither feature wants it.
 const LIST_NEEDS_BODY = forumConfig.content.listExcerpts || forumConfig.content.articles.enabled;
 const LIST_ITEM = `
-	id number title ${LIST_NEEDS_BODY ? 'body' : ''} createdAt upvoteCount
+	id number title ${LIST_NEEDS_BODY ? 'body' : ''} createdAt updatedAt upvoteCount
+	answerChosenAt viewerSubscription
 	${ACTOR}
-	category { id name slug emojiHTML }
+	category { id name slug emojiHTML isAnswerable }
 	comments { totalCount }
 `;
 const CATEGORY_FIELDS = `id name slug emojiHTML description isAnswerable`;
@@ -222,7 +223,7 @@ export async function getDiscussion(number: number): Promise<Discussion> {
 		`query ($owner: String!, $repo: String!, $number: Int!) {
 			repository(owner: $owner, name: $repo) {
 				discussion(number: $number) {
-					id number title body bodyHTML url createdAt lastEditedAt
+					id number title body bodyHTML url createdAt updatedAt lastEditedAt
 					upvoteCount viewerHasUpvoted locked
 					${ACTOR}
 					category { id name slug emojiHTML description isAnswerable }
@@ -251,6 +252,59 @@ export async function getDiscussion(number: number): Promise<Discussion> {
 	);
 	if (!data.repository.discussion) throw new GitHubError('Discussion not found.', 404);
 	return data.repository.discussion;
+}
+
+/** Read every remaining page before applying a forum-wide conversation filter. */
+export async function completeDiscussionPage(page: DiscussionPage, categoryId?: string): Promise<DiscussionPage> {
+	const nodes = new Map(page.nodes.map((d) => [d.id, d]));
+	let info = page.pageInfo;
+	const cursors = new Set<string>();
+	while (info.hasNextPage) {
+		if (!info.endCursor || cursors.has(info.endCursor)) {
+			throw new Error('Could not load all discussions. Please try again.');
+		}
+		cursors.add(info.endCursor);
+		const next = await listDiscussions({ categoryId, after: info.endCursor, first: 100 });
+		for (const node of next.nodes) nodes.set(node.id, node);
+		info = next.pageInfo;
+	}
+	return { totalCount: nodes.size, nodes: [...nodes.values()], pageInfo: info };
+}
+
+/** Includes nested replies, with explicit repo/authorship checks like profile reads. */
+export async function getParticipatedDiscussions(login: string): Promise<Set<number>> {
+	const repositoryId = await getRepoId();
+	const numbers = new Set<number>();
+	let after: string | null = null;
+	const cursors = new Set<string>();
+	do {
+		const data: { user: { repositoryDiscussionComments: {
+			pageInfo: { hasNextPage: boolean; endCursor: string | null };
+			nodes: { author: { login: string } | null; discussion: { number: number; repository: { nameWithOwner: string } } }[];
+		} } | null } = await gql(
+			`query ($login: String!, $repositoryId: ID!, $after: String) {
+				user(login: $login) {
+					repositoryDiscussionComments(first: 100, after: $after, repositoryId: $repositoryId) {
+						pageInfo { hasNextPage endCursor }
+						nodes { author { login } discussion { number repository { nameWithOwner } } }
+					}
+				}
+			}`, { login, repositoryId, after }
+		);
+		if (!data.user) throw new Error('User not found.');
+		const page = data.user.repositoryDiscussionComments;
+		for (const node of page.nodes) {
+			if (node.author?.login.toLowerCase() === login.toLowerCase() &&
+				node.discussion.repository.nameWithOwner.toLowerCase() === forumRepoName().toLowerCase()) {
+				numbers.add(node.discussion.number);
+			}
+		}
+		if (!page.pageInfo.hasNextPage) break;
+		after = page.pageInfo.endCursor;
+		if (!after || cursors.has(after)) throw new Error('Could not load your participation. Please try again.');
+		cursors.add(after);
+	} while (true);
+	return numbers;
 }
 
 export async function searchDiscussions(term: string): Promise<SearchResult> {

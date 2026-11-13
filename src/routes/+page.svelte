@@ -1,29 +1,14 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import DiscussionRow from '$lib/components/DiscussionRow.svelte';
+	import DiscussionFeed from '$lib/components/DiscussionFeed.svelte';
 	import Loading from '$lib/components/Loading.svelte';
 	import PinnedList from '$lib/components/PinnedList.svelte';
 	import SignInPrompt from '$lib/components/SignInPrompt.svelte';
 	import { forumConfig } from '$lib/config';
-	import { listDiscussions } from '$lib/github/api';
 	import { auth } from '$lib/github/auth.svelte';
-	import type { DiscussionListItem, PageInfo } from '$lib/github/types';
 	import { archiveMode, loadOverview, ui } from '$lib/ui.svelte';
 
-	// the first page comes from the shared bootstrap query (ui.home);
-	// "load more" pages accumulate locally
-	let extra = $state<DiscussionListItem[]>([]);
-	let extraPageInfo = $state<PageInfo | null>(null);
-	let loadingMore = $state(false);
 	let error = $state<string | null>(null);
-
-	// pinned posts render in their own section — keep them out of the feed
-	const pinnedIds = $derived(new Set(ui.pinned.map((p) => p.id)));
-	const discussions = $derived(
-		[...(ui.home?.nodes ?? []), ...extra].filter((d) => !pinnedIds.has(d.id))
-	);
-	const pageInfo = $derived(extraPageInfo ?? ui.home?.pageInfo ?? null);
-	const loading = $derived(ui.home === null);
 
 	let started = false;
 	$effect(() => {
@@ -36,17 +21,6 @@
 		}
 	});
 
-	async function loadMore() {
-		if (!pageInfo?.hasNextPage) return;
-		loadingMore = true;
-		try {
-			const page = await listDiscussions({ after: pageInfo.endCursor });
-			extra = [...extra, ...page.nodes];
-			extraPageInfo = page.pageInfo;
-		} finally {
-			loadingMore = false;
-		}
-	}
 </script>
 
 <svelte:head>
@@ -90,38 +64,11 @@
 
 	<PinnedList discussions={ui.pinned} />
 
-	{#if error && discussions.length === 0}
+	{#if error}
 		<p class="rounded-xl border border-red-500/30 bg-red-500/5 p-4 text-sm text-red-500">{error}</p>
-	{:else if loading}
-		<Loading />
-	{:else if discussions.length === 0}
-		<div class="rounded-2xl border border-dashed border-fd-border py-16 text-center">
-			<p class="font-medium">No discussions yet</p>
-			<p class="mt-1 text-sm text-fd-muted-foreground">Be the first to start one.</p>
-			<a
-				href={resolve('/new')}
-				class="mt-4 inline-flex rounded-lg bg-fd-primary px-4 py-2 text-sm font-medium text-fd-primary-foreground hover:opacity-90"
-			>
-				New post
-			</a>
-		</div>
 	{:else}
-		<div class="flex flex-col gap-3">
-			{#each discussions as discussion (discussion.id)}
-				<DiscussionRow {discussion} />
-			{/each}
-		</div>
-		{#if pageInfo?.hasNextPage}
-			<div class="mt-6 flex justify-center">
-				<button
-					type="button"
-					onclick={loadMore}
-					disabled={loadingMore}
-					class="rounded-lg border border-fd-border px-4 py-2 text-sm font-medium hover:bg-fd-accent disabled:opacity-50"
-				>
-					{loadingMore ? 'Loading…' : 'Load more'}
-				</button>
-			</div>
-		{/if}
+		{#key auth.viewer?.login}
+			<DiscussionFeed page={ui.home} pinned={ui.pinned} />
+		{/key}
 	{/if}
 {/if}
