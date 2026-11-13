@@ -10,8 +10,16 @@
 	import { signInEnabled } from '$lib/config';
 	import { archiveMode, loadOverview, loadRep, ui } from '$lib/ui.svelte';
 	import { previewRemainingMs, previewStartedAt } from '$lib/preview';
+	import { initConversationHistory } from '$lib/conversation-history.svelte';
+	import { untrack } from 'svelte';
 
 	let { children } = $props();
+
+	$effect(() => {
+		if (auth.loading) return;
+		const login = auth.viewer?.login;
+		untrack(() => initConversationHistory(login));
+	});
 
 	$effect(() => {
 		if (configIncomplete) return;

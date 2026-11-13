@@ -2,88 +2,51 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { swr } from '$lib/cache';
-	import DiscussionRow from '$lib/components/DiscussionRow.svelte';
+	import DiscussionFeed from '$lib/components/DiscussionFeed.svelte';
 	import Loading from '$lib/components/Loading.svelte';
 	import PinnedList from '$lib/components/PinnedList.svelte';
 	import SignInPrompt from '$lib/components/SignInPrompt.svelte';
 	import { forumConfig } from '$lib/config';
-	import { isArticle, listDiscussions } from '$lib/github/api';
+	import { listDiscussions } from '$lib/github/api';
 	import { auth } from '$lib/github/auth.svelte';
-	import type { DiscussionListItem, PageInfo } from '$lib/github/types';
+	import type { DiscussionPage } from '$lib/github/types';
 	import { archiveMode, canPostIn, repRequirement, ui } from '$lib/ui.svelte';
 
 	const category = $derived(ui.categories.find((c) => c.slug === page.params.slug));
 
-	let discussions = $state<DiscussionListItem[]>([]);
-	let pageInfo = $state<PageInfo | null>(null);
-	let loading = $state(true);
-	let loadingMore = $state(false);
+	let discussionPage = $state<DiscussionPage | null>(null);
 	let error = $state<string | null>(null);
-	let filter = $state<'all' | 'posts' | 'articles'>('all');
-
-	// pins for this topic render in their own section above the tabs
 	const pinned = $derived(ui.pinned.filter((p) => p.category.slug === page.params.slug));
-	const pinnedIds = $derived(new Set(pinned.map((p) => p.id)));
-
-	const filtered = $derived(
-		discussions
-			.filter((d) => !pinnedIds.has(d.id))
-			.filter((d) =>
-				filter === 'all' ? true : filter === 'articles' ? isArticle(d.body) : !isArticle(d.body)
-			)
-	);
 
 	let loadedFor: string | null = null;
 	$effect(() => {
-		if (category && loadedFor !== category.id) {
-			loadedFor = category.id;
+		const key = `${category?.id}:${auth.viewer?.login ?? 'guest'}`;
+		if (!auth.loading && category && loadedFor !== key) {
+			loadedFor = key;
 			load(category.id);
 		}
 	});
 
 	async function load(categoryId: string) {
-		loading = true;
+		const key = loadedFor;
 		error = null;
-		discussions = [];
-		filter = 'all';
+		discussionPage = null;
 		// read-only archive mode: the whole feed is already in the archived
 		// home index — filter it locally instead of calling the API
 		if (archiveMode()) {
-			discussions = (ui.home?.nodes ?? []).filter((d) => d.category.id === categoryId);
-			pageInfo = null;
-			loading = false;
+			const nodes = (ui.home?.nodes ?? []).filter((d) => d.category.id === categoryId);
+			discussionPage = { nodes, totalCount: nodes.length, pageInfo: { endCursor: null, hasNextPage: false } };
 			return;
 		}
 		try {
 			await swr(`discussions:cat:${categoryId}`, () => listDiscussions({ categoryId }), (result) => {
-				discussions = result.nodes;
-				pageInfo = result.pageInfo;
-				loading = false;
+				if (loadedFor === key) discussionPage = result;
 			});
 		} catch (err) {
-			error = err instanceof Error ? err.message : 'Failed to load topic.';
-		} finally {
-			loading = false;
+			if (loadedFor === key) error = err instanceof Error ? err.message : 'Failed to load topic.';
 		}
 	}
 
-	async function loadMore() {
-		if (!pageInfo?.hasNextPage || !category) return;
-		loadingMore = true;
-		try {
-			const result = await listDiscussions({ categoryId: category.id, after: pageInfo.endCursor });
-			discussions = [...discussions, ...result.nodes];
-			pageInfo = result.pageInfo;
-		} finally {
-			loadingMore = false;
-		}
-	}
-
-	const tabs = [
-		{ id: 'all', label: 'All' },
-		{ id: 'posts', label: 'Posts' },
-		{ id: 'articles', label: 'Articles' }
-	] as const;
 </script>
 
 <svelte:head>
@@ -138,50 +101,11 @@
 
 	<PinnedList discussions={pinned} showCategory={false} />
 
-	{#if forumConfig.content.articles.enabled}
-	<div class="mb-4 flex gap-1 rounded-lg border border-fd-border bg-fd-muted/50 p-1 text-sm w-fit">
-		{#each tabs as tab (tab.id)}
-			<button
-				type="button"
-				onclick={() => (filter = tab.id)}
-				class="rounded-md px-3 py-1 transition-colors {filter === tab.id
-					? 'bg-fd-background font-medium shadow-sm'
-					: 'text-fd-muted-foreground hover:text-fd-foreground'}"
-			>
-				{tab.label}
-			</button>
-		{/each}
-	</div>
-	{/if}
-
-	{#if loading}
-		<Loading />
-	{:else if error}
+	{#if error}
 		<p class="rounded-xl border border-red-500/30 bg-red-500/5 p-4 text-sm text-red-500">{error}</p>
-	{:else if filtered.length === 0}
-		<div class="rounded-2xl border border-dashed border-fd-border py-16 text-center">
-			<p class="font-medium">Nothing here yet</p>
-			<p class="mt-1 text-sm text-fd-muted-foreground">
-				No {filter === 'all' ? 'discussions' : filter} in this topic.
-			</p>
-		</div>
 	{:else}
-		<div class="flex flex-col gap-3">
-			{#each filtered as discussion (discussion.id)}
-				<DiscussionRow {discussion} showCategory={false} />
-			{/each}
-		</div>
-		{#if pageInfo?.hasNextPage}
-			<div class="mt-6 flex justify-center">
-				<button
-					type="button"
-					onclick={loadMore}
-					disabled={loadingMore}
-					class="rounded-lg border border-fd-border px-4 py-2 text-sm font-medium hover:bg-fd-accent disabled:opacity-50"
-				>
-					{loadingMore ? 'Loading…' : 'Load more'}
-				</button>
-			</div>
-		{/if}
+		{#key `${category.id}:${auth.viewer?.login ?? 'guest'}`}
+			<DiscussionFeed page={discussionPage} categoryId={category.id} {pinned} showCategory={false} />
+		{/key}
 	{/if}
 {/if}

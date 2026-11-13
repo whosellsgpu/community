@@ -254,6 +254,55 @@ describe('getDiscussion', () => {
 	});
 });
 
+describe('completeDiscussionPage', () => {
+	it('includes older matches beyond the first page and deduplicates overlapping pages', async () => {
+		const first = { ...feed, pageInfo: { endCursor: 'one', hasNextPage: true } };
+		fetchMock.mockResolvedValueOnce(gqlOk({ repository: { discussions: {
+			...feed, nodes: [{ id: 'd1' }, { id: 'popular-old-thread' }],
+			pageInfo: { endCursor: 'two', hasNextPage: true }
+		} } })).mockResolvedValueOnce(gqlOk({ repository: { discussions: {
+			...feed, nodes: [{ id: 'last' }], pageInfo: { endCursor: 'end', hasNextPage: false }
+		} } }));
+		const result = await api.completeDiscussionPage(first as never, 'category');
+		expect(result.nodes.map((d) => d.id)).toEqual(['d1', 'popular-old-thread', 'last']);
+		expect(first.nodes).toEqual([{ id: 'd1' }]);
+		expect(JSON.parse(fetchMock.mock.calls[0][1].body).variables).toMatchObject({ after: 'one', first: 100, categoryId: 'category' });
+	});
+	it('does not fetch for an already complete archive', async () => {
+		expect(await api.completeDiscussionPage(feed as never)).toEqual(feed);
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+	it('rejects an absent cursor or repeated cursor instead of silently returning incomplete matches', async () => {
+		await expect(api.completeDiscussionPage({ ...feed, pageInfo: { hasNextPage: true, endCursor: null } } as never)).rejects.toThrow(/load all/);
+		const repeated = { ...feed, pageInfo: { hasNextPage: true, endCursor: 'same' } };
+		fetchMock.mockResolvedValue(gqlOk({ repository: { discussions: repeated } }));
+		await expect(api.completeDiscussionPage(repeated as never)).rejects.toThrow(/load all/);
+	});
+});
+
+describe('getParticipatedDiscussions', () => {
+	const comment = (number: number, login: string | null = 'Alice', repo = 'o/r') => ({
+		author: login ? { login } : null, discussion: { number, repository: { nameWithOwner: repo } }
+	});
+	const commentsPage = (nodes: unknown[], hasNextPage = false, endCursor: string | null = null) =>
+		gqlOk({ user: { repositoryDiscussionComments: { nodes, pageInfo: { hasNextPage, endCursor } } } });
+	it('pages through comments/replies and rejects unrelated authors and repositories', async () => {
+		fetchMock.mockResolvedValueOnce(gqlOk(categoriesData([])))
+			.mockResolvedValueOnce(commentsPage([comment(1), comment(2, 'bob'), comment(3, null), comment(4, 'Alice', 'other/repo')], true, 'next'))
+			.mockResolvedValueOnce(commentsPage([comment(1), comment(5, 'ALICE', 'O/R')]));
+		expect(await api.getParticipatedDiscussions('alice')).toEqual(new Set([1, 5]));
+		expect(JSON.parse(fetchMock.mock.calls[2][1].body).variables).toEqual({ login: 'alice', repositoryId: 'RID', after: 'next' });
+	});
+	it('rejects an unavailable user', async () => {
+		fetchMock.mockResolvedValueOnce(gqlOk(categoriesData([]))).mockResolvedValueOnce(gqlOk({ user: null }));
+		await expect(api.getParticipatedDiscussions('alice')).rejects.toThrow('User not found');
+	});
+	it.each([null, 'same'])('rejects broken pagination (%s)', async (endCursor) => {
+		fetchMock.mockResolvedValueOnce(gqlOk(categoriesData([]))).mockResolvedValue(commentsPage([], true, endCursor));
+		await expect(api.getParticipatedDiscussions('alice')).rejects.toThrow(/participation/);
+	});
+});
+
 describe('searchDiscussions', () => {
 	it('scopes the query to the configured repo', async () => {
 		fetchMock.mockResolvedValue(gqlOk({ search: { discussionCount: 0, nodes: [] } }));
