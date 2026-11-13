@@ -2,6 +2,7 @@
 	import { base, resolve } from '$app/paths';
 	import { forumConfig, githubUrlFor, signInEnabled } from '$lib/config';
 	import { auth } from '$lib/github/auth.svelte';
+	import { rememberReturn } from '$lib/github/site-session';
 	import { ui } from '$lib/ui.svelte';
 
 	let token = $state('');
@@ -25,6 +26,8 @@
 	}
 
 	function startOAuth() {
+		// come back to this same forum page afterwards
+		rememberReturn(`${location.pathname}${location.search}${location.hash}`, 'forum');
 		auth.beginOAuth(`${location.origin}${resolve('/auth/callback')}`);
 	}
 
