@@ -2,6 +2,7 @@
 	import { base, resolve } from '$app/paths';
 	import { forumConfig, githubUrlFor, signInEnabled } from '$lib/config';
 	import { auth } from '$lib/github/auth.svelte';
+	import { rememberReturn } from '$lib/github/site-session';
 	import { ui } from '$lib/ui.svelte';
 
 	let token = $state('');
@@ -25,6 +26,8 @@
 	}
 
 	function startOAuth() {
+		// come back to this same forum page afterwards
+		rememberReturn(`${location.pathname}${location.search}${location.hash}`, 'forum');
 		auth.beginOAuth(`${location.origin}${resolve('/auth/callback')}`);
 	}
 
@@ -83,7 +86,9 @@
 			{:else}
 			<p class="mb-4 text-sm text-fd-muted-foreground">
 				Sign in with your GitHub account to keep reading, and to post, comment, and react
-				right here. We only get access to forum discussions.
+				right here. You'll be signed in on whosellsgpu.com too. We save your public GitHub
+				profile so we can connect GPU buyers and suppliers, and only get access to forum
+				discussions.
 			</p>
 			{/if}
 

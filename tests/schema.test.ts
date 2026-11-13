@@ -17,6 +17,9 @@ describe('defineForumConfig', () => {
 describe('mergeConfig', () => {
 	it('returns defaults for an empty user config', () => {
 		expect(mergeConfig({})).toEqual(defaultConfig);
+		// a plain deploy keeps its own header and no host-site session
+		expect(defaultConfig.host.enabled).toBe(false);
+		expect(defaultConfig.auth.siteSessionUrl).toBe('');
 	});
 
 	it('deep-merges nested sections without dropping sibling defaults', () => {
@@ -84,9 +87,7 @@ describe('buildThemeCss', () => {
 	});
 
 	it('compiles light overrides into :root', () => {
-		expect(buildThemeCss({ light: { primary: 'red' }, dark: {} })).toBe(
-			':root{--fd-primary:red;}'
-		);
+		expect(buildThemeCss({ light: { primary: 'red' }, dark: {} })).toBe(':root{--fd-primary:red;}');
 	});
 
 	it('compiles dark overrides into .dark', () => {

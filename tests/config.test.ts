@@ -1,11 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-	configIncomplete,
-	forumConfig,
-	githubUrlFor,
-	signInEnabled,
-	themeCss
-} from '$lib/config';
+import { configIncomplete, forumConfig, githubUrlFor, signInEnabled, themeCss } from '$lib/config';
 
 // Exercises the real resolution pipeline: root forum.config.ts merged over
 // defaults, repo fallback applied, theme compiled.
@@ -16,6 +10,23 @@ describe('resolved config', () => {
 		expect(forumConfig.site.name).toBe('Who Sells GPU · Community');
 		// default that forum.config.ts does not override
 		expect(forumConfig.content.articles.marker).toBe('<!-- dk:article -->');
+	});
+
+	it('wears the whosellsgpu.com header, with the forum as the current section', () => {
+		const { host } = forumConfig;
+		expect(host.enabled).toBe(true);
+		expect(host.name).toBe('Who Sells GPU');
+		expect(host.logoUrl).toBe('/logos/mark.svg');
+		expect(host.nav.map((link) => link.label)).toEqual([
+			'Prices',
+			'GPUs',
+			'Providers',
+			'Buyers',
+			'Forum'
+		]);
+		expect(host.nav.filter((link) => link.current).map((link) => link.href)).toEqual(['/forum/']);
+		expect(host.membersExportUrl).toBe('/api/admin/members');
+		expect(forumConfig.auth.siteSessionUrl).toBe('https://whosellsgpu.com/api/session');
 	});
 
 	it('is not incomplete when a repo is configured', () => {

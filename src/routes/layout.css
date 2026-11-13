@@ -178,3 +178,19 @@ main h1 {
 .markdown g-emoji {
 	font-family: inherit;
 }
+
+/* Same content width as the host site's header (forumConfig.host). */
+.host-width {
+	width: min(1416px, calc(100% - 64px));
+	margin-inline: auto;
+}
+@media (max-width: 900px) {
+	.host-width {
+		width: calc(100% - 40px);
+	}
+}
+@media (max-width: 640px) {
+	.host-width {
+		width: calc(100% - 36px);
+	}
+}

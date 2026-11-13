@@ -4,6 +4,7 @@
 	import { page } from '$app/state';
 	import Loading from '$lib/components/Loading.svelte';
 	import { auth } from '$lib/github/auth.svelte';
+	import { takeReturn } from '$lib/github/site-session';
 
 	let error = $state<string | null>(null);
 
@@ -16,8 +17,14 @@
 		}
 		auth
 			.completeOAuth(code, state)
-			.then(() => goto(resolve('/'), { replaceState: true }))
+			.then(() => {
+				// sign-ins started on the host site go back to the page they came from
+				const back = takeReturn();
+				if (back) location.replace(back);
+				else goto(resolve('/'), { replaceState: true });
+			})
 			.catch((err) => {
+				takeReturn();
 				error = err instanceof Error ? err.message : 'Sign in failed.';
 			});
 	});
