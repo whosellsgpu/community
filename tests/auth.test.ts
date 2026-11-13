@@ -8,9 +8,21 @@ const { mockConfig, setCacheScope, clearCache } = vi.hoisted(() => ({
 	setCacheScope: vi.fn(),
 	clearCache: vi.fn()
 }));
+const site = vi.hoisted(() => ({
+	synced: false,
+	pendingReturn: false,
+	syncSiteSession: vi.fn(async () => true),
+	endSiteSession: vi.fn()
+}));
 
 vi.mock('$lib/config', () => ({ forumConfig: mockConfig }));
 vi.mock('$lib/cache', () => ({ setCacheScope, clearCache }));
+vi.mock('$lib/github/site-session', () => ({
+	siteSessionSynced: () => site.synced,
+	hasPendingReturn: () => site.pendingReturn,
+	syncSiteSession: site.syncSiteSession,
+	endSiteSession: site.endSiteSession
+}));
 
 let auth: (typeof import('$lib/github/auth.svelte'))['auth'];
 let fetchMock: Mock;
@@ -29,6 +41,10 @@ beforeEach(async () => {
 	mockConfig.auth.oauth = { clientId: '', proxyUrl: '' };
 	setCacheScope.mockClear();
 	clearCache.mockClear();
+	site.synced = false;
+	site.pendingReturn = false;
+	site.syncSiteSession.mockClear();
+	site.endSiteSession.mockClear();
 	fetchMock = vi.fn();
 	vi.stubGlobal('fetch', fetchMock);
 	({ auth } = await import('$lib/github/auth.svelte'));
@@ -49,6 +65,16 @@ describe('init', () => {
 		expect(auth.token).toBe('stored');
 		expect(auth.viewer).toEqual(viewer);
 		expect(auth.signedIn).toBe(true);
+		// the host site is told once per browser session
+		expect(site.syncSiteSession).toHaveBeenCalledWith('stored', 'forum');
+	});
+
+	it('does not re-share a sign-in already shared this session', async () => {
+		localStorage.setItem('dk:token', 'stored');
+		site.synced = true;
+		fetchMock.mockResolvedValue(viewerOk);
+		await auth.init();
+		expect(site.syncSiteSession).not.toHaveBeenCalled();
 	});
 
 	it('drops a revoked stored token silently', async () => {
@@ -129,6 +155,30 @@ describe('oauth', () => {
 		expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({ code: 'code' });
 		// nonce is single-use
 		expect(sessionStorage.getItem('dk:oauth-state')).toBeNull();
+		// the host site learns about the forum sign-in
+		expect(site.syncSiteSession).toHaveBeenCalledWith('oat', 'forum');
+	});
+
+	it('completeOAuth marks sign-ins started on the host site', async () => {
+		mockConfig.auth.oauth = { clientId: 'cid', proxyUrl: 'http://proxy' };
+		sessionStorage.setItem('dk:oauth-state', 'S');
+		site.pendingReturn = true;
+		fetchMock
+			.mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ access_token: 'oat' }) })
+			.mockResolvedValueOnce(viewerOk);
+		await auth.completeOAuth('code', 'S');
+		expect(site.syncSiteSession).toHaveBeenCalledWith('oat', 'site');
+	});
+});
+
+describe('shareWithSite', () => {
+	it('shares the current sign-in, and does nothing when signed out', async () => {
+		await auth.shareWithSite('site');
+		expect(site.syncSiteSession).not.toHaveBeenCalled();
+		fetchMock.mockResolvedValue(viewerOk);
+		await auth.signInWithToken('tok');
+		await auth.shareWithSite('site');
+		expect(site.syncSiteSession).toHaveBeenCalledWith('tok', 'site');
 	});
 });
 
@@ -143,5 +193,7 @@ describe('signOut', () => {
 		// cached GraphQL data is wiped and the scope reset
 		expect(clearCache).toHaveBeenCalled();
 		expect(setCacheScope).toHaveBeenCalledWith(null);
+		// and the host site's session ends with it
+		expect(site.endSiteSession).toHaveBeenCalled();
 	});
 });

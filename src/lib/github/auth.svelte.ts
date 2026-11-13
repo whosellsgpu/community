@@ -1,5 +1,12 @@
 import { clearCache, setCacheScope } from '$lib/cache';
 import { forumConfig } from '$lib/config';
+import {
+	endSiteSession,
+	hasPendingReturn,
+	siteSessionSynced,
+	syncSiteSession,
+	type SignInSource
+} from './site-session';
 import type { Viewer } from './types';
 
 const TOKEN_KEY = 'dk:token';
@@ -22,6 +29,8 @@ class Auth {
 			this.token = stored;
 			try {
 				await this.fetchViewer();
+				// once per browser session: keeps the host site signed in too
+				if (!siteSessionSynced()) void syncSiteSession(stored, 'forum');
 			} catch {
 				// token revoked/expired — drop it silently
 				this.signOut();
@@ -68,12 +77,20 @@ class Auth {
 		const data = (await res.json()) as { access_token?: string };
 		if (!data.access_token) throw new Error('Token exchange returned no token.');
 		await this.signInWithToken(data.access_token);
+		// sign the visitor in on the host site before any redirect back to it
+		await syncSiteSession(data.access_token, hasPendingReturn() ? 'site' : 'forum');
+	}
+
+	/** Share the current sign-in with the host site (e.g. its session expired). */
+	async shareWithSite(source: SignInSource): Promise<void> {
+		if (this.token && this.viewer) await syncSiteSession(this.token, source);
 	}
 
 	signOut() {
 		this.token = null;
 		this.viewer = null;
 		localStorage.removeItem(TOKEN_KEY);
+		endSiteSession();
 		// cached GraphQL data may contain viewer-specific fields — drop it all
 		clearCache();
 		setCacheScope(null);
