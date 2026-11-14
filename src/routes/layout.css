@@ -50,11 +50,13 @@
 	--color-fd-ring: var(--fd-ring);
 	--color-fd-link: var(--fd-link);
 
-	--font-serif: 'Instrument Serif', ui-serif, Georgia, serif;
-	--font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+	/* One family, as on whosellsgpu.com: Geist and Geist Mono. `font-serif`
+	   stays as an alias so older markup keeps the same face. */
 	--font-sans:
-		'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
+		'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
 		Arial, sans-serif;
+	--font-serif: var(--font-sans);
+	--font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 html {
@@ -66,11 +68,11 @@ body {
 	@apply font-sans text-[15px];
 }
 
-/* Page and thread titles use the Who Sells GPU serif. */
+/* Page and thread titles: regular weight, tight tracking, as on the site. */
 main h1 {
-	font-family: var(--font-serif);
+	font-family: var(--font-sans);
 	font-weight: 400;
-	letter-spacing: -0.02em;
+	letter-spacing: -0.025em;
 }
 
 ::selection {

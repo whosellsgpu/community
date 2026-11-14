@@ -31,7 +31,7 @@
 <div class="border-b border-fd-border">
 	<div class="host-width flex min-h-14 flex-wrap items-center gap-x-4 gap-y-2 py-2.5">
 		<a href={resolve('/')} class="mr-auto flex items-baseline gap-2">
-			<span class="font-serif text-xl leading-none tracking-tight">Community forum</span>
+			<span class="text-xl leading-none font-normal tracking-tight">Community forum</span>
 		</a>
 		{#if forumConfig.features.search && !archiveMode()}
 			<form onsubmit={search} class="order-last w-full sm:order-none sm:w-64">

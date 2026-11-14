@@ -117,7 +117,7 @@
 		background: color-mix(in srgb, var(--bg) 95%, transparent);
 		backdrop-filter: blur(16px);
 		color: var(--text);
-		font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+		font-family: 'Geist', ui-sans-serif, system-ui, sans-serif;
 	}
 	:global(html.dark) .wsg-header {
 		--bg: #040804;
@@ -170,7 +170,8 @@
 	.wsg-tagline {
 		display: block;
 		font:
-			400 7px/1.6 'JetBrains Mono',
+			400 9px/1.6 'Geist Mono',
+			ui-monospace,
 			monospace;
 		letter-spacing: 1.02px;
 		color: var(--muted);
@@ -285,7 +286,7 @@
 			font-size: 15px;
 		}
 		.wsg-tagline {
-			font-size: 6px;
+			font-size: 9px;
 		}
 		.wsg-actions {
 			margin-left: 0;
