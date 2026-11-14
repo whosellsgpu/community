@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { base } from '$app/paths';
 	import { forumConfig } from '$lib/config';
-	import { toggleTheme } from '$lib/ui.svelte';
+	import { shortcutLabel } from '$lib/command-search';
+	import { toggleTheme, ui } from '$lib/ui.svelte';
 	import HostAccount from './HostAccount.svelte';
 
 	// The host site's own header (whosellsgpu.com's SiteHeader), so the forum
@@ -9,9 +10,14 @@
 	// the site's styles.css; keep them in step.
 	const host = forumConfig.host;
 	const logo = host.logoUrl || `${base}/mark.png`;
+	// "Ctrl K" until the platform is known, like the site's SearchButton.
+	let shortcut = $state('Ctrl K');
+	$effect(() => {
+		shortcut = shortcutLabel(navigator.platform);
+	});
 </script>
 
-<header class="wsg-header">
+<header class="wsg-header wsg-tokens">
 	<div class="wsg-inner">
 		<a class="wsg-brand" href={host.homeUrl} aria-label="{host.name} home">
 			<span class="wsg-brand-icon"><img src={logo} alt="" /></span>
@@ -77,6 +83,17 @@
 					<span class="wsg-label">{host.bookingLabel}</span>
 				</a>
 			{/if}
+			<button
+				type="button"
+				class="wsg-search"
+				onclick={() => (ui.searchOpen = true)}
+				aria-label="Search the forum"
+				aria-keyshortcuts="Meta+K Control+K"
+			>
+				<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+				<span class="wsg-search-label">Search</span>
+				<kbd>{shortcut}</kbd>
+			</button>
 			<button type="button" class="wsg-theme" onclick={toggleTheme} aria-label="Toggle theme">
 				<!-- sun in dark mode (switch to light), moon in light mode -->
 				<svg class="wsg-sun" viewBox="0 0 24 24" aria-hidden="true"
@@ -96,20 +113,7 @@
 </header>
 
 <style>
-	/* whosellsgpu.com tokens: light (cream) by default, dark under html.dark */
 	.wsg-header {
-		--bg: #f3eee3;
-		--panel: #faf7ef;
-		--surface: #e7dfcf;
-		--text: #1e1b15;
-		--muted: #5b5446;
-		--line: #e0d7c6;
-		--line-strong: #c6baa3;
-		--accent: #2d6b1f;
-		--cta-bg: #7fee64;
-		--cta-hover: #9efb87;
-		--cta-text: #040804;
-		--shadow: 0 24px 80px #3a2e1a1f;
 		position: sticky;
 		top: 0;
 		z-index: 30;
@@ -118,17 +122,6 @@
 		backdrop-filter: blur(16px);
 		color: var(--text);
 		font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-	}
-	:global(html.dark) .wsg-header {
-		--bg: #040804;
-		--panel: #10120f;
-		--surface: #1a2018;
-		--text: #f1f2f0;
-		--muted: #a1a89c;
-		--line: #20271d;
-		--line-strong: #2d4327;
-		--accent: #7fee64;
-		--shadow: 0 24px 80px #000a;
 	}
 	/* Shared with the layout so sticky asides and overlays sit under it. */
 	:global(:root) {
@@ -239,6 +232,29 @@
 		stroke-linejoin: round;
 		flex-shrink: 0;
 	}
+	/* the site's .site-search-button */
+	.wsg-search {
+		display: inline-flex;
+		align-items: center;
+		gap: 9px;
+		height: 35px;
+		padding: 0 8px 0 11px;
+		border: 1px solid var(--line);
+		border-radius: 4px;
+		color: var(--muted);
+		font-size: 11px;
+		transition:
+			border-color 0.15s,
+			color 0.15s;
+	}
+	.wsg-search:hover {
+		color: var(--text);
+		border-color: var(--line-strong);
+	}
+	.wsg-search svg {
+		width: 15px;
+		height: 15px;
+	}
 	.wsg-theme {
 		display: inline-flex;
 		align-items: center;
@@ -268,6 +284,9 @@
 		display: none;
 	}
 	@media (max-width: 1100px) {
+		.wsg-search-label {
+			display: none;
+		}
 		.wsg-nav a:not(.keep):not(.active) {
 			display: none;
 		}
@@ -293,6 +312,14 @@
 		}
 	}
 	@media (max-width: 720px) {
+		.wsg-search kbd {
+			display: none;
+		}
+		.wsg-search {
+			width: 35px;
+			padding: 0;
+			justify-content: center;
+		}
 		:global(.wsg-header .wsg-label) {
 			display: none;
 		}

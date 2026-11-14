@@ -15,6 +15,8 @@ import { fetchLedger } from './rep/ledger';
 /** Small cross-component UI state */
 export const ui = $state({
 	signInOpen: false,
+	/** The ⌘K search palette */
+	searchOpen: false,
 	categories: [] as Category[],
 	categoriesLoaded: false,
 	viewerPermission: 'READ' as RepositoryPermission,

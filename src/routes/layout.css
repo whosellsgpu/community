@@ -194,3 +194,42 @@ main h1 {
 		width: calc(100% - 36px);
 	}
 }
+
+/* whosellsgpu.com's colour tokens (its styles.css), for the host header and
+   the ⌘K search: cream light theme by default, green-black under html.dark. */
+.wsg-tokens {
+	--bg: #f3eee3;
+	--panel: #faf7ef;
+	--surface: #e7dfcf;
+	--text: #1e1b15;
+	--muted: #5b5446;
+	--subtle: #665f50;
+	--line: #e0d7c6;
+	--line-strong: #c6baa3;
+	--accent: #2d6b1f;
+	--cta-bg: #7fee64;
+	--cta-hover: #9efb87;
+	--cta-text: #040804;
+	--shadow: 0 24px 80px #3a2e1a1f;
+}
+html.dark .wsg-tokens {
+	--bg: #040804;
+	--panel: #10120f;
+	--surface: #1a2018;
+	--text: #f1f2f0;
+	--muted: #a1a89c;
+	--subtle: #858d80;
+	--line: #20271d;
+	--line-strong: #2d4327;
+	--accent: #7fee64;
+	--shadow: 0 24px 80px #000a;
+}
+.wsg-tokens kbd {
+	font:
+		400 9px/1 'JetBrains Mono',
+		monospace;
+	border: 1px solid var(--line);
+	border-radius: 3px;
+	padding: 3px 5px;
+	color: var(--muted);
+}
