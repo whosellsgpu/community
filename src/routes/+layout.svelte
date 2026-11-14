@@ -3,6 +3,7 @@
 	import { base, resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import './layout.css';
+	import CommandSearch from '$lib/components/CommandSearch.svelte';
 	import ForumBar from '$lib/components/ForumBar.svelte';
 	import Header from '$lib/components/Header.svelte';
 	import HostHeader from '$lib/components/HostHeader.svelte';
@@ -122,6 +123,7 @@
 		<Header />
 	{/if}
 	<SignInDialog />
+	<CommandSearch />
 
 	{#if archiveMode() && ui.bootedFromArchive}
 		<div class="border-b border-fd-border bg-fd-muted/50">
