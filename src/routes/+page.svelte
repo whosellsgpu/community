@@ -24,7 +24,7 @@
 </script>
 
 <svelte:head>
-	<title>{forumConfig.site.name} — Home</title>
+	<title>Home | {forumConfig.site.name}</title>
 </svelte:head>
 
 {#if auth.loading}
