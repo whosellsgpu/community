@@ -128,8 +128,8 @@
 			<div class="{width} flex flex-wrap items-center justify-center gap-x-2 gap-y-1 py-2 text-center text-xs text-fd-muted-foreground">
 				<span>
 					{signInEnabled
-						? 'Read-only snapshot — sign in to post, comment, and react.'
-						: 'Read-only view — post, reply, and react on GitHub.'}
+						? 'Read-only snapshot. Sign in to post, comment, and react.'
+						: 'Read-only view. Post, reply, and react on GitHub.'}
 				</span>
 				<button
 					type="button"

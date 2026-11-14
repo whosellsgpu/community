@@ -107,7 +107,7 @@
 				</button>
 			{:else if signInEnabled && !tokenSignIn}
 				<p class="rounded-xl border border-red-500/30 bg-red-500/5 p-3 text-sm text-red-500">
-					No sign-in method is enabled — set <code>auth.allowToken</code> or configure OAuth in
+					No sign-in method is enabled. Set <code>auth.allowToken</code> or configure OAuth in
 					<code>forum.config.ts</code>.
 				</p>
 			{/if}
