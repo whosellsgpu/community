@@ -1,0 +1,54 @@
+{
+	"archivedAt": "2026-11-14T12:43:40.530Z",
+	"categories": [
+		{
+			"id": "DIC_kwDOVr-oOc4DK-MR",
+			"name": "Announcements",
+			"slug": "announcements",
+			"emojiHTML": "<div>📣</div>",
+			"description": "Updates from maintainers",
+			"isAnswerable": false
+		},
+		{
+			"id": "DIC_kwDOVr-oOc4DK-MS",
+			"name": "General",
+			"slug": "general",
+			"emojiHTML": "<div>💬</div>",
+			"description": "Chat about anything and everything here",
+			"isAnswerable": false
+		},
+		{
+			"id": "DIC_kwDOVr-oOc4DK-MU",
+			"name": "Ideas",
+			"slug": "ideas",
+			"emojiHTML": "<div>💡</div>",
+			"description": "Share ideas for new features",
+			"isAnswerable": false
+		},
+		{
+			"id": "DIC_kwDOVr-oOc4DK-MW",
+			"name": "Polls",
+			"slug": "polls",
+			"emojiHTML": "<div>🗳️</div>",
+			"description": "Take a vote from the community",
+			"isAnswerable": false
+		},
+		{
+			"id": "DIC_kwDOVr-oOc4DK-MT",
+			"name": "Q&A",
+			"slug": "q-a",
+			"emojiHTML": "<div>🙏</div>",
+			"description": "Ask the community for help",
+			"isAnswerable": true
+		},
+		{
+			"id": "DIC_kwDOVr-oOc4DK-MV",
+			"name": "Show and tell",
+			"slug": "show-and-tell",
+			"emojiHTML": "<div>🙌</div>",
+			"description": "Show off something you've made",
+			"isAnswerable": false
+		}
+	],
+	"pinned": []
+}
