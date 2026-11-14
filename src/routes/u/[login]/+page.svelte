@@ -51,7 +51,7 @@
 				(d) => d.author?.login.toLowerCase() === user.toLowerCase()
 			);
 			if (!repData && posts.length === 0) {
-				error = 'This user has no archived activity — sign in to view the full profile.';
+				error = 'This user has no archived activity. Sign in to view the full profile.';
 				loading = false;
 				return;
 			}
@@ -128,7 +128,7 @@
 </script>
 
 <svelte:head>
-	<title>{login ? `@${login} — ${forumConfig.site.name}` : forumConfig.site.name}</title>
+	<title>{login ? `@${login} | ${forumConfig.site.name}` : forumConfig.site.name}</title>
 </svelte:head>
 
 {#if auth.loading}
@@ -247,7 +247,7 @@
 			<div class="rounded-2xl border border-dashed border-fd-border py-16 text-center">
 				<p class="font-medium">{profile.comments.totalCount} comments</p>
 				<p class="mt-1 text-sm text-fd-muted-foreground">
-					Comment details aren't part of the read-only snapshot — sign in to browse them.
+					Comment details aren't part of the read-only snapshot. Sign in to browse them.
 				</p>
 			</div>
 		{:else if profile.comments.nodes.length === 0}

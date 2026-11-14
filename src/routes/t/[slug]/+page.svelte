@@ -50,7 +50,7 @@
 </script>
 
 <svelte:head>
-	<title>{category ? `${category.name} — ${forumConfig.site.name}` : forumConfig.site.name}</title>
+	<title>{category ? `${category.name} | ${forumConfig.site.name}` : forumConfig.site.name}</title>
 </svelte:head>
 
 {#if auth.loading}

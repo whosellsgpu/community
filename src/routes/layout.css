@@ -66,10 +66,11 @@ body {
 	@apply font-sans text-[15px];
 }
 
-/* Page and thread titles use the Who Sells GPU serif. */
+/* Page and thread titles: the forum's sans, semibold. The display serif is
+   for whosellsgpu.com's large page titles and looks cramped at forum sizes. */
 main h1 {
-	font-family: var(--font-serif);
-	font-weight: 400;
+	font-family: var(--font-sans);
+	font-weight: 600;
 	letter-spacing: -0.02em;
 }
 

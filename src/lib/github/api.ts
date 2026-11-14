@@ -36,7 +36,7 @@ async function gql<T>(
 	} = {}
 ): Promise<T> {
 	if (!auth.token) {
-		throw new GitHubError('Sign in to browse the forum — GitHub Discussions requires an API token.', 401);
+		throw new GitHubError('Sign in to browse the forum. GitHub Discussions requires an API token.', 401);
 	}
 	const res = await fetch('https://api.github.com/graphql', {
 		method: 'POST',
@@ -48,7 +48,7 @@ async function gql<T>(
 	});
 	if (res.status === 401) {
 		auth.signOut();
-		throw new GitHubError('Your GitHub token is no longer valid — please sign in again.', 401);
+		throw new GitHubError('Your GitHub token is no longer valid. Please sign in again.', 401);
 	}
 	if (!res.ok) throw new GitHubError(`GitHub API error (${res.status}).`, res.status);
 	const json = await res.json();

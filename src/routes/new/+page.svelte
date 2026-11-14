@@ -53,7 +53,7 @@
 </script>
 
 <svelte:head>
-	<title>New post — {forumConfig.site.name}</title>
+	<title>New post | {forumConfig.site.name}</title>
 </svelte:head>
 
 {#if auth.loading}

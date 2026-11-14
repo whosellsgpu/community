@@ -203,7 +203,7 @@
 </script>
 
 <svelte:head>
-	<title>{discussion ? `${discussion.title} — ${forumConfig.site.name}` : forumConfig.site.name}</title>
+	<title>{discussion ? `${discussion.title} | ${forumConfig.site.name}` : forumConfig.site.name}</title>
 </svelte:head>
 
 {#if auth.loading}

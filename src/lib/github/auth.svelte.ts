@@ -66,7 +66,7 @@ class Auth {
 		const expected = sessionStorage.getItem(STATE_KEY);
 		sessionStorage.removeItem(STATE_KEY);
 		if (!expected || expected !== state) {
-			throw new Error('OAuth state mismatch — please try signing in again.');
+			throw new Error('OAuth state mismatch. Please try signing in again.');
 		}
 		const res = await fetch(forumConfig.auth.oauth.proxyUrl, {
 			method: 'POST',
