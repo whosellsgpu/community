@@ -8,7 +8,7 @@
 	// reads as one more page of the site. Sizes, colours and breakpoints match
 	// the site's styles.css; keep them in step.
 	const host = forumConfig.host;
-	const logo = host.logoUrl || `${base}/mark.png`;
+	const logo = host.logoUrl || `${base}/logos/mark.svg`;
 </script>
 
 <header class="wsg-header">
