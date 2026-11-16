@@ -27,7 +27,7 @@
 	<title>Home | {forumConfig.site.name}</title>
 </svelte:head>
 
-{#if auth.loading}
+{#if auth.loading || (!auth.signedIn && archiveMode() && !ui.archiveChecked)}
 	<Loading />
 {:else if !auth.signedIn && !(archiveMode() && ui.bootedFromArchive)}
 	<div class="mx-auto max-w-2xl pt-10">

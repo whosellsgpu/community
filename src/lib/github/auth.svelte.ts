@@ -11,6 +11,19 @@ import type { Viewer } from './types';
 
 const TOKEN_KEY = 'dk:token';
 const STATE_KEY = 'dk:oauth-state';
+// The signed-in member's public profile, kept with the token so a returning
+// visitor renders signed in (and from the per-user cache) at once, while the
+// token is re-checked with GitHub in the background.
+const VIEWER_KEY = 'dk:viewer';
+
+function readStoredViewer(): Viewer | null {
+	try {
+		const parsed = JSON.parse(localStorage.getItem(VIEWER_KEY) ?? 'null');
+		return typeof parsed?.login === 'string' ? (parsed as Viewer) : null;
+	} catch {
+		return null;
+	}
+}
 
 class Auth {
 	token = $state<string | null>(null);
@@ -27,16 +40,32 @@ class Auth {
 		const stored = localStorage.getItem(TOKEN_KEY);
 		if (stored) {
 			this.token = stored;
-			try {
-				await this.fetchViewer();
-				// once per browser session: keeps the host site signed in too
-				if (!siteSessionSynced()) void syncSiteSession(stored, 'forum');
-			} catch {
-				// token revoked/expired — drop it silently
-				this.signOut();
+			const known = readStoredViewer();
+			if (known) {
+				// Render signed in straight away; GitHub confirms in the background.
+				this.viewer = known;
+				setCacheScope(known.login);
+				this.loading = false;
+				this.ready = this.revalidate(stored);
+				return;
 			}
+			await this.revalidate(stored);
 		}
 		this.loading = false;
+	}
+
+	/** Resolves once the stored token has been re-checked (tests, callers). */
+	ready: Promise<void> = Promise.resolve();
+
+	private async revalidate(stored: string) {
+		try {
+			await this.fetchViewer();
+			// once per browser session: keeps the host site signed in too
+			if (!siteSessionSynced()) void syncSiteSession(stored, 'forum');
+		} catch {
+			// token revoked/expired — drop it silently
+			this.signOut();
+		}
 	}
 
 	async signInWithToken(token: string) {
@@ -90,6 +119,7 @@ class Auth {
 		this.token = null;
 		this.viewer = null;
 		localStorage.removeItem(TOKEN_KEY);
+		localStorage.removeItem(VIEWER_KEY);
 		endSiteSession();
 		// cached GraphQL data may contain viewer-specific fields — drop it all
 		clearCache();
@@ -109,6 +139,7 @@ class Auth {
 		const json = await res.json();
 		if (json.errors?.length) throw new Error(json.errors[0].message);
 		this.viewer = json.data.viewer as Viewer;
+		localStorage.setItem(VIEWER_KEY, JSON.stringify(this.viewer));
 		// cache entries are isolated per signed-in user
 		setCacheScope(this.viewer.login);
 	}

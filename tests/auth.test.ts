@@ -87,6 +87,49 @@ describe('init', () => {
 	});
 });
 
+describe('returning members', () => {
+	it('render signed in at once from the saved profile, then confirm with GitHub', async () => {
+		localStorage.setItem('dk:token', 'stored');
+		localStorage.setItem('dk:viewer', JSON.stringify({ ...viewer, name: 'Old name' }));
+		let answer: (value: unknown) => void = () => {};
+		fetchMock.mockReturnValue(new Promise((resolve) => (answer = resolve)));
+		await auth.init();
+		// no waiting on GitHub: signed in and scoped to the member's cache
+		expect(auth.loading).toBe(false);
+		expect(auth.signedIn).toBe(true);
+		expect(auth.viewer?.name).toBe('Old name');
+		expect(setCacheScope).toHaveBeenCalledWith('alice');
+		answer(viewerOk);
+		await auth.ready;
+		expect(auth.viewer).toEqual(viewer);
+		expect(JSON.parse(localStorage.getItem('dk:viewer')!)).toEqual(viewer);
+	});
+
+	it('are signed out when the background check finds the token revoked', async () => {
+		localStorage.setItem('dk:token', 'revoked');
+		localStorage.setItem('dk:viewer', JSON.stringify(viewer));
+		fetchMock.mockResolvedValue({ ok: false, status: 401 });
+		await auth.init();
+		expect(auth.signedIn).toBe(true);
+		await auth.ready;
+		expect(auth.signedIn).toBe(false);
+		expect(localStorage.getItem('dk:token')).toBeNull();
+		expect(localStorage.getItem('dk:viewer')).toBeNull();
+	});
+
+	it.each([['not json'], ['{"name":"no login"}'], ['null']])(
+		'ignore an unusable saved profile (%s) and wait for GitHub',
+		async (saved) => {
+			localStorage.setItem('dk:token', 'stored');
+			localStorage.setItem('dk:viewer', saved);
+			fetchMock.mockResolvedValue(viewerOk);
+			await auth.init();
+			expect(auth.viewer).toEqual(viewer);
+			expect(fetchMock).toHaveBeenCalledTimes(1);
+		}
+	);
+});
+
 describe('signInWithToken', () => {
 	it('trims, validates and persists the token', async () => {
 		fetchMock.mockResolvedValue(viewerOk);
@@ -190,6 +233,7 @@ describe('signOut', () => {
 		expect(auth.token).toBeNull();
 		expect(auth.viewer).toBeNull();
 		expect(localStorage.getItem('dk:token')).toBeNull();
+		expect(localStorage.getItem('dk:viewer')).toBeNull();
 		// cached GraphQL data is wiped and the scope reset
 		expect(clearCache).toHaveBeenCalled();
 		expect(setCacheScope).toHaveBeenCalledWith(null);

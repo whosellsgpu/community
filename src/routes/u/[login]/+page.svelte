@@ -131,7 +131,7 @@
 	<title>{login ? `@${login} | ${forumConfig.site.name}` : forumConfig.site.name}</title>
 </svelte:head>
 
-{#if auth.loading}
+{#if auth.loading || (!auth.signedIn && archiveMode() && !ui.archiveChecked)}
 	<Loading />
 {:else if !auth.signedIn && !(archiveMode() && ui.bootedFromArchive)}
 	<SignInPrompt />
