@@ -208,8 +208,8 @@ main h1 {
 	--line: #e0d7c6;
 	--line-strong: #c6baa3;
 	--accent: #2d6b1f;
-	--cta-bg: #7fee64;
-	--cta-hover: #9efb87;
+	--cta-bg: #7fc86e;
+	--cta-hover: #7fd56b;
 	--cta-text: #040804;
 	--shadow: 0 24px 80px #3a2e1a1f;
 }
@@ -222,7 +222,7 @@ html.dark .wsg-tokens {
 	--subtle: #858d80;
 	--line: #20271d;
 	--line-strong: #2d4327;
-	--accent: #7fee64;
+	--accent: #7fc86e;
 	--shadow: 0 24px 80px #000a;
 }
 .wsg-tokens kbd {
