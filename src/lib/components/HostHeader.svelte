@@ -15,6 +15,22 @@
 	$effect(() => {
 		shortcut = shortcutLabel(navigator.platform);
 	});
+
+	// The site's phone and tablet menu (below 1100px).
+	let menuOpen = $state(false);
+	const close = () => (menuOpen = false);
+	$effect(() => {
+		if (!menuOpen) return;
+		const onKey = (event: KeyboardEvent) => {
+			if (event.key === 'Escape') close();
+		};
+		document.body.classList.add('menu-open');
+		window.addEventListener('keydown', onKey);
+		return () => {
+			document.body.classList.remove('menu-open');
+			window.removeEventListener('keydown', onKey);
+		};
+	});
 </script>
 
 <header class="wsg-header wsg-tokens">
@@ -26,22 +42,46 @@
 				{#if host.tagline}<span class="wsg-tagline">{host.tagline}</span>{/if}
 			</span>
 		</a>
-		<nav class="wsg-nav" aria-label="Main navigation">
+		<nav
+			id="wsg-main-navigation"
+			class="wsg-nav"
+			class:open={menuOpen}
+			aria-label="Main navigation"
+		>
 			{#each host.nav as link (link.href)}
 				<a
 					href={link.href}
 					class:active={link.current}
-					class:keep={link.keepOnMobile}
 					aria-current={link.current ? 'page' : undefined}
+					onclick={close}
 				>
 					{link.label}
+					{#if link.current}<span class="wsg-marker" aria-hidden="true"></span>{/if}
 				</a>
 			{/each}
+			{#if host.bookingUrl}
+				<a
+					class="wsg-nav-contact wsg-nav-booking"
+					href={host.bookingUrl}
+					target="_blank"
+					rel="noopener noreferrer"
+					onclick={close}>Schedule a call with us</a
+				>
+			{/if}
+			{#if host.communityUrl}
+				<a
+					class="wsg-nav-contact"
+					href={host.communityUrl}
+					target="_blank"
+					rel="noopener noreferrer"
+					onclick={close}>Join our Slack community</a
+				>
+			{/if}
 		</nav>
 		<div class="wsg-actions">
 			{#if host.communityUrl}
 				<a
-					class="wsg-button wsg-small wsg-cta wsg-community"
+					class="wsg-button wsg-small wsg-cta wsg-home-cta wsg-community"
 					href={host.communityUrl}
 					target="_blank"
 					rel="noopener noreferrer"
@@ -63,7 +103,7 @@
 			{/if}
 			{#if host.bookingUrl}
 				<a
-					class="wsg-button wsg-small wsg-primary wsg-cta"
+					class="wsg-button wsg-small wsg-primary wsg-cta wsg-home-cta"
 					href={host.bookingUrl}
 					target="_blank"
 					rel="noopener noreferrer"
@@ -108,12 +148,28 @@
 				>
 			</button>
 			<HostAccount />
+			<button
+				type="button"
+				class="wsg-menu"
+				aria-controls="wsg-main-navigation"
+				aria-expanded={menuOpen}
+				aria-label="Toggle navigation"
+				onclick={() => (menuOpen = !menuOpen)}
+			>
+				<svg class="wsg-menu-open" viewBox="0 0 24 24" aria-hidden="true"
+					><path d="M4 12h16" /><path d="M4 18h16" /><path d="M4 6h16" /></svg
+				>
+				<svg class="wsg-menu-close" viewBox="0 0 24 24" aria-hidden="true"
+					><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg
+				>
+			</button>
 		</div>
 	</div>
 </header>
 
 <style>
 	.wsg-header {
+		view-transition-name: site-header;
 		position: sticky;
 		top: 0;
 		z-index: 30;
@@ -143,6 +199,7 @@
 		font-size: 17px;
 		font-weight: 600;
 		letter-spacing: -0.6px;
+		line-height: normal;
 	}
 	.wsg-brand-icon {
 		height: 35px;
@@ -172,14 +229,192 @@
 	.wsg-nav {
 		display: flex;
 		align-items: center;
-		gap: 24px;
+		gap: 30px;
 		margin-left: auto;
-		font-size: 11px;
+	}
+	.wsg-nav a {
+		position: relative;
+		padding: 12px 0;
+		font-size: 13px;
 		color: var(--muted);
+		transition: color 0.18s ease;
 	}
 	.wsg-nav a:hover,
 	.wsg-nav a.active {
 		color: var(--text);
+	}
+	/* The active dot; it slides between pages with the site's view transition. */
+	.wsg-marker {
+		view-transition-name: nav-marker;
+		position: absolute;
+		bottom: 0;
+		left: calc(50% - 2px);
+		width: 4px;
+		height: 4px;
+		border-radius: 50%;
+		background: var(--accent);
+	}
+	.wsg-nav .wsg-nav-contact {
+		display: none;
+	}
+	.wsg-menu {
+		display: none;
+		position: relative;
+		align-items: center;
+		justify-content: center;
+		width: 34px;
+		height: 34px;
+		border-radius: 4px;
+		color: var(--muted);
+		overflow: hidden;
+		flex-shrink: 0;
+	}
+	.wsg-menu svg {
+		position: absolute;
+		width: 21px;
+		height: 21px;
+		transition:
+			transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+			opacity 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+	}
+	.wsg-menu-close {
+		opacity: 0;
+		transform: rotate(-90deg) scale(0.65);
+	}
+	.wsg-menu[aria-expanded='true'] .wsg-menu-open {
+		opacity: 0;
+		transform: rotate(90deg) scale(0.65);
+	}
+	.wsg-menu[aria-expanded='true'] .wsg-menu-close {
+		opacity: 1;
+		transform: none;
+	}
+	@keyframes wsg-nav-enter {
+		from {
+			opacity: 0;
+			transform: translateY(14px);
+		}
+	}
+	/* Slack and booking collapse to icons, then move into the menu, like
+	   the site's .home-booking; Sign in keeps its label down to 720px. */
+	@media (max-width: 1360px) {
+		.wsg-home-cta .wsg-label {
+			display: none;
+		}
+		.wsg-home-cta {
+			width: 35px;
+			padding: 0;
+		}
+	}
+	@media (max-width: 1200px) {
+		.wsg-nav {
+			gap: 20px;
+		}
+	}
+	@media (max-width: 1100px) {
+		:global(body.menu-open) {
+			overflow: hidden;
+		}
+		.wsg-menu {
+			display: inline-flex;
+		}
+		.wsg-nav {
+			display: none;
+		}
+		.wsg-nav.open {
+			display: flex;
+			flex-direction: column;
+			align-items: stretch;
+			gap: 0;
+			position: absolute;
+			top: 72px;
+			left: 0;
+			right: 0;
+			z-index: 19;
+			height: calc(100dvh - 72px);
+			overflow-y: auto;
+			padding: 20px 32px calc(24px + env(safe-area-inset-bottom));
+			background: var(--bg);
+		}
+		.wsg-nav a {
+			width: 100%;
+			padding: 18px 0;
+			border-bottom: 1px solid var(--line);
+			font-size: 19px;
+			text-align: left;
+		}
+		.wsg-nav .wsg-nav-contact {
+			display: block;
+			border-bottom: 0;
+			color: var(--accent);
+		}
+		.wsg-nav .wsg-nav-booking {
+			margin-top: auto;
+		}
+		.wsg-marker {
+			display: none;
+		}
+	}
+	@media (max-width: 900px) {
+		.wsg-home-cta {
+			display: none;
+		}
+		.wsg-nav {
+			gap: 15px;
+		}
+	}
+	@media (max-width: 720px) {
+		:global(.wsg-header .wsg-label) {
+			display: none;
+		}
+		:global(.wsg-header .wsg-cta) {
+			width: 35px;
+			padding: 0;
+		}
+	}
+	@media (max-width: 640px) {
+		.wsg-nav.open {
+			top: 68px;
+			height: calc(100dvh - 68px);
+			padding: 28px 24px calc(24px + env(safe-area-inset-bottom));
+		}
+		.wsg-nav a {
+			padding: 21px 0;
+			font-size: 24px;
+			font-weight: 500;
+			line-height: 1.2;
+		}
+		.wsg-nav a.active {
+			color: var(--accent);
+		}
+		.wsg-nav .wsg-nav-contact {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			font-size: 17px;
+		}
+		.wsg-nav.open > * {
+			animation: wsg-nav-enter 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+		}
+		.wsg-nav.open > :nth-child(2) {
+			animation-delay: 60ms;
+		}
+		.wsg-nav.open > :nth-child(3) {
+			animation-delay: 0.12s;
+		}
+		.wsg-nav.open > :nth-child(4) {
+			animation-delay: 0.18s;
+		}
+		.wsg-nav.open > :nth-child(5) {
+			animation-delay: 0.24s;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.wsg-nav.open > *,
+		.wsg-menu svg {
+			animation: none;
+			transition: none;
+		}
 	}
 	.wsg-actions {
 		display: flex;
@@ -287,9 +522,6 @@
 		.wsg-search-label {
 			display: none;
 		}
-		.wsg-nav a:not(.keep):not(.active) {
-			display: none;
-		}
 	}
 	@media (max-width: 900px) {
 		:global(:root) {
@@ -320,22 +552,6 @@
 			padding: 0;
 			justify-content: center;
 		}
-		:global(.wsg-header .wsg-label) {
-			display: none;
-		}
-		:global(.wsg-header .wsg-cta) {
-			width: 35px;
-			padding: 0;
-		}
-	}
-	@media (max-width: 700px) {
-		.wsg-nav {
-			gap: 10px;
-			font-size: 9px;
-		}
-		.wsg-tagline {
-			display: none;
-		}
 	}
 	@media (max-width: 640px) {
 		:global(:root) {
@@ -353,12 +569,13 @@
 			width: 31px;
 			height: 31px;
 		}
+		.wsg-tagline {
+			font-size: 5.5px;
+			letter-spacing: 0.7px;
+		}
 	}
 	@media (max-width: 480px) {
 		.wsg-community {
-			display: none;
-		}
-		.wsg-nav a:not(.keep) {
 			display: none;
 		}
 	}

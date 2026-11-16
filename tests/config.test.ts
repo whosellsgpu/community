@@ -17,13 +17,16 @@ describe('resolved config', () => {
 		expect(host.enabled).toBe(true);
 		expect(host.name).toBe('Who Sells GPU');
 		expect(host.logoUrl).toBe('/logos/mark.svg');
+		// Same items and order as the site's SiteHeader.
 		expect(host.nav.map((link) => link.label)).toEqual([
 			'Prices',
-			'GPUs',
 			'Providers',
+			'GPUs',
 			'Buyers',
-			'Forum'
+			'Forum',
+			'Handbook'
 		]);
+		expect(host.bookingUrl).toBe('https://cal.com/whosellgpu/30min');
 		expect(host.nav.filter((link) => link.current).map((link) => link.href)).toEqual(['/forum/']);
 		expect(host.membersExportUrl).toBe('/api/admin/members');
 		expect(forumConfig.auth.siteSessionUrl).toBe('https://whosellsgpu.com/api/session');

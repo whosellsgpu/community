@@ -36,17 +36,19 @@ export default defineForumConfig({
 		tagline: 'ON-DEMAND GPU PRICES',
 		homeUrl: '/',
 		logoUrl: '/logos/mark.svg',
+		// Same items, order and links as the site's SiteHeader.
 		nav: [
-			{ label: 'Prices', href: '/#compare', keepOnMobile: true },
-			{ label: 'GPUs', href: '/gpus', keepOnMobile: true },
+			{ label: 'Prices', href: '/#compare' },
 			{ label: 'Providers', href: '/#directory' },
+			{ label: 'GPUs', href: '/gpus' },
 			{ label: 'Buyers', href: '/buyers' },
-			{ label: 'Forum', href: '/forum/', current: true }
+			{ label: 'Forum', href: '/forum/', current: true },
+			{ label: 'Handbook', href: '/handbook' }
 		],
 		communityUrl:
 			'https://join.slack.com/t/whosellsgpu/shared_invite/zt-4fukajr7r-~2GylbGumYFr~dYz6jk~qA',
 		communityLabel: 'Join our Slack',
-		bookingUrl: 'https://calendly.com/founders-whosellsgpu/30min',
+		bookingUrl: 'https://cal.com/whosellgpu/30min',
 		bookingLabel: 'Schedule a call',
 		membersExportUrl: '/api/admin/members'
 	},
