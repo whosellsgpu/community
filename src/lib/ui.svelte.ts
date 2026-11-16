@@ -1,5 +1,10 @@
-import { fetchArchiveIndex, fetchArchiveMeta } from './archive/client';
-import { swr } from './cache';
+import {
+	fetchArchiveIndex,
+	fetchArchiveMeta,
+	type ArchiveIndex,
+	type ArchiveMeta
+} from './archive/client';
+import { readCache, swr, writeCache } from './cache';
 import { forumConfig } from './config';
 import { getOverview } from './github/api';
 import { auth } from './github/auth.svelte';
@@ -31,8 +36,31 @@ export const ui = $state({
 	 * The overview was booted from the read-only archive (signed-out visitor).
 	 * Signing in re-runs the bootstrap against the live API.
 	 */
-	bootedFromArchive: false
+	bootedFromArchive: false,
+	/**
+	 * A signed-out visitor's archive load has finished (or a saved copy was
+	 * shown), so pages can tell "still loading" from "no archive".
+	 */
+	archiveChecked: false
 });
+
+// The last archive snapshot, so a returning visitor's forum renders at once
+// while the fresh copy loads.
+const ARCHIVE_CACHE_KEY = 'archive:overview';
+
+function applyArchive(meta: ArchiveMeta, index: ArchiveIndex) {
+	ui.categories = meta.categories.filter((c) => visibleSlug(c.slug));
+	ui.viewerPermission = 'READ';
+	const nodes = index.discussions.filter((d) => visibleSlug(d.category.slug));
+	ui.home = {
+		totalCount: nodes.length,
+		pageInfo: { endCursor: null, hasNextPage: false },
+		nodes
+	};
+	ui.pinned = meta.pinned.filter((d) => visibleSlug(d.category.slug));
+	ui.categoriesLoaded = true;
+	ui.bootedFromArchive = true;
+}
 
 /**
  * Read-only archive mode: the visitor is signed out and the forum has a
@@ -58,20 +86,17 @@ function visibleSlug(slug: string): boolean {
  */
 export async function loadOverview() {
 	if (archiveMode()) {
+		const saved = readCache<{ meta: ArchiveMeta; index: ArchiveIndex }>(ARCHIVE_CACHE_KEY);
+		if (saved) {
+			applyArchive(saved.meta, saved.index);
+			ui.archiveChecked = true;
+		}
 		const [meta, index] = await Promise.all([fetchArchiveMeta(), fetchArchiveIndex()]);
+		ui.archiveChecked = true;
 		// no archive yet (workflow hasn't run) — leave the sign-in prompt up
 		if (!meta || !index) return;
-		ui.categories = meta.categories.filter((c) => visibleSlug(c.slug));
-		ui.viewerPermission = 'READ';
-		const nodes = index.discussions.filter((d) => visibleSlug(d.category.slug));
-		ui.home = {
-			totalCount: nodes.length,
-			pageInfo: { endCursor: null, hasNextPage: false },
-			nodes
-		};
-		ui.pinned = meta.pinned.filter((d) => visibleSlug(d.category.slug));
-		ui.categoriesLoaded = true;
-		ui.bootedFromArchive = true;
+		writeCache(ARCHIVE_CACHE_KEY, { meta, index });
+		applyArchive(meta, index);
 		return;
 	}
 	const revalidate = ui.categoriesLoaded && !ui.bootedFromArchive;

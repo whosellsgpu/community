@@ -35,8 +35,12 @@ vi.mock('$lib/github/api', () => ({ getOverview }));
 vi.mock('$lib/github/auth.svelte', () => ({ auth: mockAuth }));
 vi.mock('$lib/rep/ledger', () => ({ fetchLedger }));
 vi.mock('$lib/archive/client', () => ({ fetchArchiveMeta, fetchArchiveIndex }));
+// in-memory cache store, reset per test
+const cacheStore = vi.hoisted(() => new Map<string, unknown>());
 // pass-through swr: run the fetcher and apply the fresh result
 vi.mock('$lib/cache', () => ({
+	readCache: (key: string) => cacheStore.get(key) ?? null,
+	writeCache: (key: string, data: unknown) => cacheStore.set(key, data),
 	swr: async <T,>(
 		_key: string,
 		fetcher: () => Promise<T>,
@@ -54,6 +58,7 @@ const feed = { totalCount: 1, pageInfo: { endCursor: null, hasNextPage: false },
 
 beforeEach(async () => {
 	vi.resetModules();
+	cacheStore.clear();
 	getOverview.mockReset().mockResolvedValue({
 		categories: cats,
 		viewerPermission: 'READ',
@@ -198,9 +203,35 @@ describe('archive mode', () => {
 		});
 
 		it('leaves the sign-in prompt up when no archive exists yet', async () => {
+			expect(mod.ui.archiveChecked).toBe(false);
 			await mod.loadOverview();
+			expect(mod.ui.archiveChecked).toBe(true);
 			expect(mod.ui.categoriesLoaded).toBe(false);
 			expect(mod.ui.bootedFromArchive).toBe(false);
+		});
+
+		it('saves the snapshot, and shows the saved copy at once on the next visit', async () => {
+			fetchArchiveMeta.mockResolvedValue(meta);
+			fetchArchiveIndex.mockResolvedValue(index);
+			await mod.loadOverview();
+			expect(cacheStore.get('archive:overview')).toEqual({ meta, index });
+
+			// next page load: the network is slow, the saved copy renders first
+			vi.resetModules();
+			mod = await import('$lib/ui.svelte');
+			let finish: (value: unknown) => void = () => {};
+			fetchArchiveMeta.mockReturnValue(new Promise((resolve) => (finish = resolve)));
+			const loading = mod.loadOverview();
+			expect(mod.ui.archiveChecked).toBe(true);
+			expect(mod.ui.bootedFromArchive).toBe(true);
+			expect(mod.ui.home?.nodes.map((d) => d.id)).toEqual(['a1', 'a2']);
+
+			// the fresh copy then arrives, is applied and saved again
+			cacheStore.clear();
+			finish(meta);
+			await loading;
+			expect(mod.ui.home?.nodes.map((d) => d.id)).toEqual(['a1', 'a2']);
+			expect(cacheStore.get('archive:overview')).toEqual({ meta, index });
 		});
 
 		it('re-boots from the live API after signing in', async () => {
