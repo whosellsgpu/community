@@ -109,7 +109,7 @@ export default defineForumConfig({
 			card: '#faf7ef',
 			cardForeground: '#1e1b15',
 			border: '#e0d7c6',
-			primary: '#7fee64',
+			primary: '#7fc86e',
 			primaryForeground: '#040804',
 			accent: '#efe8da',
 			accentForeground: '#1e1b15',
@@ -124,12 +124,12 @@ export default defineForumConfig({
 			card: '#10120f',
 			cardForeground: '#f1f2f0',
 			border: '#20271d',
-			primary: '#7fee64',
+			primary: '#7fc86e',
 			primaryForeground: '#040804',
 			accent: '#141812',
 			accentForeground: '#f1f2f0',
-			ring: '#7fee64',
-			link: '#7fee64'
+			ring: '#7fc86e',
+			link: '#7fc86e'
 		}
 	}
 });

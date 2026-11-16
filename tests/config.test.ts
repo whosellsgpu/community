@@ -60,6 +60,6 @@ describe('resolved config', () => {
 	it('compiles the Who Sells GPU theme for both schemes', () => {
 		expect(themeCss).toContain('--fd-background:#f3eee3');
 		expect(themeCss).toContain('--fd-background:#040804');
-		expect(themeCss).toContain('--fd-primary:#7fee64');
+		expect(themeCss).toContain('--fd-primary:#7fc86e');
 	});
 });
