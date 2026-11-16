@@ -37,7 +37,7 @@
 	<div class="wsg-inner">
 		<a class="wsg-brand" href={host.homeUrl} aria-label="{host.name} home">
 			<span class="wsg-brand-icon"><img src={logo} alt="" /></span>
-			<span>
+			<span class="wsg-brand-name">
 				{host.name}
 				{#if host.tagline}<span class="wsg-tagline">{host.tagline}</span>{/if}
 			</span>
@@ -196,10 +196,12 @@
 		display: inline-flex;
 		align-items: center;
 		gap: 11px;
-		font-size: 17px;
-		font-weight: 600;
-		letter-spacing: -0.6px;
-		line-height: normal;
+		font:
+			400 25px/1 'Instrument Serif',
+			Georgia,
+			serif;
+		letter-spacing: -0.1px;
+		white-space: nowrap;
 	}
 	.wsg-brand-icon {
 		height: 35px;
@@ -533,7 +535,7 @@
 			width: calc(100% - 40px);
 		}
 		.wsg-brand {
-			font-size: 15px;
+			font-size: 23px;
 		}
 		.wsg-tagline {
 			font-size: 6px;
@@ -562,7 +564,7 @@
 			height: 68px;
 		}
 		.wsg-brand {
-			font-size: 15px;
+			font-size: 22px;
 			gap: 8px;
 		}
 		.wsg-brand-icon {
@@ -577,6 +579,17 @@
 	@media (max-width: 480px) {
 		.wsg-community {
 			display: none;
+		}
+	}
+	/* The serif wordmark wraps onto two lines on the narrowest phones. */
+	@media (max-width: 400px) {
+		.wsg-brand {
+			font-size: 20px;
+			line-height: 0.95;
+			white-space: normal;
+		}
+		.wsg-brand-name {
+			max-width: 6.2em;
 		}
 	}
 </style>

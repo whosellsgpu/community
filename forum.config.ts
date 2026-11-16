@@ -33,7 +33,8 @@ export default defineForumConfig({
 	host: {
 		enabled: true,
 		name: 'Who Sells GPU',
-		tagline: 'ON-DEMAND GPU PRICES',
+		// No tagline: the site's header shows the wordmark alone.
+		tagline: '',
 		homeUrl: '/',
 		logoUrl: '/logos/mark.svg',
 		// Same items, order and links as the site's SiteHeader.
