@@ -467,7 +467,7 @@
 		background: var(--surface);
 	}
 	:global(html:not(.dark) .wsg-button:hover) {
-		background: #e7e7e9;
+		background: #dde7d1;
 		border-color: transparent;
 	}
 	:global(html:not(.dark) .wsg-primary) {

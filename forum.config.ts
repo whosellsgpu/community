@@ -100,19 +100,19 @@ export default defineForumConfig({
 	archive: { enabled: true, previewMinutes: 0.75 },
 
 	// Who Sells GPU palette: green-black dark mode with lime primary buttons;
-	// white light mode with near-black primary buttons and deep-green links.
+	// green-tinted light mode with near-black primary buttons and deep-green links.
 	theme: {
 		light: {
-			background: '#ffffff',
+			background: '#f1f6ea',
 			foreground: '#171917',
-			muted: '#f4f4f5',
+			muted: '#e5eed9',
 			mutedForeground: '#555a53',
-			card: '#ffffff',
+			card: '#f9fbf5',
 			cardForeground: '#171917',
-			border: '#e6e8e3',
+			border: '#dfe7d4',
 			primary: '#171917',
 			primaryForeground: '#ffffff',
-			accent: '#f4f4f5',
+			accent: '#e5eed9',
 			accentForeground: '#171917',
 			ring: '#3f6b0d',
 			link: '#3f6b0d'
