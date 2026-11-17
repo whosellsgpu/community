@@ -197,21 +197,21 @@ main h1 {
 }
 
 /* whosellsgpu.com's colour tokens (its styles.css), for the host header and
-   the ⌘K search: cream light theme by default, green-black under html.dark. */
+   the ⌘K search: white light theme by default, green-black under html.dark. */
 .wsg-tokens {
-	--bg: #f3eee3;
-	--panel: #faf7ef;
-	--surface: #e7dfcf;
-	--text: #1e1b15;
-	--muted: #5b5446;
-	--subtle: #665f50;
-	--line: #e0d7c6;
-	--line-strong: #c6baa3;
-	--accent: #2d6b1f;
-	--cta-bg: #7fc86e;
-	--cta-hover: #7fd56b;
-	--cta-text: #040804;
-	--shadow: 0 24px 80px #3a2e1a1f;
+	--bg: #ffffff;
+	--panel: #ffffff;
+	--surface: #f4f4f5;
+	--text: #171917;
+	--muted: #555a53;
+	--subtle: #62675f;
+	--line: #e6e8e3;
+	--line-strong: #d4d8cf;
+	--accent: #3f6b0d;
+	--cta-bg: #171917;
+	--cta-hover: #30332f;
+	--cta-text: #ffffff;
+	--shadow: 0 24px 60px #0000001a;
 }
 html.dark .wsg-tokens {
 	--bg: #040804;
@@ -223,7 +223,25 @@ html.dark .wsg-tokens {
 	--line: #20271d;
 	--line-strong: #2d4327;
 	--accent: #7fc86e;
+	--cta-bg: #7fc86e;
+	--cta-hover: #7fd56b;
+	--cta-text: #040804;
 	--shadow: 0 24px 80px #000a;
+}
+
+/* Light theme, as on whosellsgpu.com: two faint rules frame the page column
+   on wide screens. */
+@media (min-width: 900px) {
+	html:not(.dark) body::after {
+		content: '';
+		position: fixed;
+		inset: 0 auto 0 50%;
+		z-index: 40;
+		width: min(1440px, calc(100% - 32px));
+		transform: translateX(-50%);
+		border-inline: 1px solid #00000014;
+		pointer-events: none;
+	}
 }
 .wsg-tokens kbd {
 	font:
