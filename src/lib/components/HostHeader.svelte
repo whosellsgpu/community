@@ -459,6 +459,29 @@
 		background: var(--cta-hover);
 		border-color: var(--cta-hover);
 	}
+	/* Light theme, as on whosellsgpu.com: pill buttons, near-black primary,
+	   soft grey secondary, and a white header on a hairline. */
+	:global(html:not(.dark) .wsg-button) {
+		border-radius: 999px;
+		border-color: transparent;
+		background: var(--surface);
+	}
+	:global(html:not(.dark) .wsg-button:hover) {
+		background: #e7e7e9;
+		border-color: transparent;
+	}
+	:global(html:not(.dark) .wsg-primary) {
+		background: var(--cta-bg);
+		border-color: color-mix(in srgb, var(--cta-bg) 80%, #fff);
+		box-shadow: inset 0 0 10px #00000080;
+	}
+	:global(html:not(.dark) .wsg-primary:hover) {
+		background: var(--cta-hover);
+		border-color: var(--cta-hover);
+	}
+	:global(html:not(.dark)) .wsg-header {
+		border-bottom-color: #0000001f;
+	}
 	:global(.wsg-header svg) {
 		width: 14px;
 		height: 14px;
