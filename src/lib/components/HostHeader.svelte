@@ -467,7 +467,7 @@
 		background: var(--surface);
 	}
 	:global(html:not(.dark) .wsg-button:hover) {
-		background: #dde7d1;
+		background: #e7e7e9;
 		border-color: transparent;
 	}
 	:global(html:not(.dark) .wsg-primary) {
@@ -480,6 +480,7 @@
 		border-color: var(--cta-hover);
 	}
 	:global(html:not(.dark)) .wsg-header {
+		background: color-mix(in srgb, #fff 62%, transparent);
 		border-bottom-color: #0000001f;
 	}
 	:global(.wsg-header svg) {

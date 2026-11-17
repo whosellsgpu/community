@@ -58,8 +58,8 @@ describe('resolved config', () => {
 	});
 
 	it('compiles the Who Sells GPU theme for both schemes', () => {
-		// Green-tinted light theme with near-black buttons; green-black dark theme with lime.
-		expect(themeCss).toContain(':root{--fd-background:#f1f6ea;');
+		// White light theme with near-black buttons; green-black dark theme with lime.
+		expect(themeCss).toContain(':root{--fd-background:#ffffff;');
 		expect(themeCss).toContain('--fd-primary:#171917;');
 		expect(themeCss).toContain('.dark{--fd-background:#040804;');
 		expect(themeCss).toMatch(/\.dark\{[^}]*--fd-primary:#7fc86e;/);

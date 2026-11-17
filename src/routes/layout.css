@@ -197,16 +197,16 @@ main h1 {
 }
 
 /* whosellsgpu.com's colour tokens (its styles.css), for the host header and
-   the ⌘K search: green-tinted light theme by default, green-black under html.dark. */
+   the ⌘K search: white light theme by default, green-black under html.dark. */
 .wsg-tokens {
-	--bg: #f1f6ea;
-	--panel: #f9fbf5;
-	--surface: #e5eed9;
+	--bg: #ffffff;
+	--panel: #ffffff;
+	--surface: #f4f4f5;
 	--text: #171917;
 	--muted: #555a53;
 	--subtle: #62675f;
-	--line: #dfe7d4;
-	--line-strong: #c9d6ba;
+	--line: #e6e8e3;
+	--line-strong: #d4d8cf;
 	--accent: #3f6b0d;
 	--cta-bg: #171917;
 	--cta-hover: #30332f;
@@ -229,6 +229,15 @@ html.dark .wsg-tokens {
 	--shadow: 0 24px 80px #000a;
 }
 
+/* Light theme, as on whosellsgpu.com: white paper with a soft blush of
+   green glowing in from the top, in the chart's green. */
+html:not(.dark) body {
+	background:
+		radial-gradient(ellipse 60% 520px at 82% -60px, #7fc86e33, transparent 72%),
+		radial-gradient(ellipse 45% 420px at 4% 40px, #7fc86e1f, transparent 70%);
+	background-repeat: no-repeat;
+}
+
 /* Light theme, as on whosellsgpu.com: two faint rules frame the page column
    on wide screens. */
 @media (min-width: 900px) {
@@ -239,7 +248,7 @@ html.dark .wsg-tokens {
 		z-index: 40;
 		width: min(1440px, calc(100% - 32px));
 		transform: translateX(-50%);
-		border-inline: 1px solid #2f4a1a1a;
+		border-inline: 1px solid #00000014;
 		pointer-events: none;
 	}
 }
